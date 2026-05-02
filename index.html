@@ -167,7 +167,7 @@ select:focus,input:focus{border-color:var(--accent);}
 .hm-legend{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px;}
 .hm-legend-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;color:var(--text3);}
 .hm-legend-dot{width:12px;height:12px;border-radius:2px;}
-.hm-tooltip{position:fixed;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:10px 14px;font-family:var(--mono);font-size:10px;pointer-events:none;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.4);max-width:280px;}
+.hm-tooltip{position:fixed;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:10px 14px;font-family:var(--mono);font-size:10px;pointer-events:none;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.4);max-width:300px;}
 
 ::-webkit-scrollbar{width:5px;height:5px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
@@ -333,7 +333,6 @@ select:focus,input:focus{border-color:var(--accent);}
   </div>
 </div>
 
-<!-- ANALYTICS TAB -->
 <div class="tab-panel" id="tab-analytics">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
     <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;">Analytics Filter</div>
@@ -406,7 +405,7 @@ select:focus,input:focus{border-color:var(--accent);}
   <div style="margin-bottom:8px;font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;">End-Trade Drawdown (ETD)</div>
   <div class="grid-2" style="margin-bottom:20px;">
     <div class="card">
-      <div class="card-title">ETD SCATTER</div>
+      <div class="card-title">ETD SCATTER — MFE vs ETD (exit quality)</div>
       <div style="height:220px;"><canvas id="etdChart"></canvas></div>
     </div>
     <div class="card">
@@ -1120,12 +1119,13 @@ function renderMAEMFEETD(closed){
   renderETD(closed);
 }
 
+// RESTORED DETAILED MAE SUMMARY
 function renderMAE(closed){
   const withMAE=closed.filter(t=>n(t.MAE)!==0); 
   const ctx=document.getElementById('maeChart').getContext('2d');
   if(charts.mae) charts.mae.destroy();
   if(!withMAE.length){
-    document.getElementById('maeSummary').innerHTML='<div style="color:var(--text3);font-size:11px;line-height:1.8;">Add a MAE column.</div>';
+    document.getElementById('maeSummary').innerHTML='<div style="color:var(--text3);font-size:11px;line-height:1.8;">Add a <b style="color:var(--accent)">MAE</b> column to your Google Sheet.<br><br>MAE = max % adverse move from entry during the trade before it recovered or hit SL.</div>';
     charts.mae=new Chart(ctx,{type:'scatter',data:{datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
     return;
   }
@@ -1142,19 +1142,33 @@ function renderMAE(closed){
       scales:{x:{title:{display:true,text:'Max Drawdown (MAE %)',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}},
               y:{title:{display:true,text:'Exit % Move',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}}}}
   });
+  
   const aw=Math.abs(ws.reduce((a,t)=>a+n(t.MAE),0))/(ws.length||1);
   const al=Math.abs(ls.reduce((a,t)=>a+n(t.MAE),0))/(ls.length||1);
+  const maxMAE=Math.max(...withMAE.map(t=>Math.abs(n(t.MAE))));
+  const SL_PCT = closed.reduce((a,t)=>{
+    const e=n(t.Entry),sl=n(t.SL);
+    return e&&sl ? a+Math.abs((sl-e)/e*100) : a;
+  },0)/(closed.length||1);
+
   document.getElementById('maeSummary').innerHTML=`
-    <div class="bench-row"><span>Avg DD — Wins</span><b class="neg">${aw.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Avg DD — Losses</span><b class="neg">${al.toFixed(2)}%</b></div>`;
+    <div class="bench-row"><span>Trades with MAE data</span><b>${withMAE.length}</b></div>
+    <div class="bench-row"><span>Avg Drawdown — Winners</span><b class="neg">${aw.toFixed(2)}%</b></div>
+    <div class="bench-row"><span>Avg Drawdown — Losers</span><b class="neg">${al.toFixed(2)}%</b></div>
+    <div class="bench-row"><span>Max Drawdown ever</span><b class="neg">${maxMAE.toFixed(2)}%</b></div>
+    <div class="bench-row"><span>Avg SL distance</span><b style="color:var(--accent)">${SL_PCT.toFixed(2)}%</b></div>
+    <div style="margin-top:10px;padding:10px;background:var(--bg3);border-radius:var(--r);font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7;">
+      💡 <b style="color:var(--text2)">MAE Insight:</b> If avg MAE on winners (${aw.toFixed(1)}%) is much lower than avg SL (${SL_PCT.toFixed(1)}%), your stops may be too wide. Tighter stops = better capital efficiency.
+    </div>`;
 }
 
+// RESTORED DETAILED MFE SUMMARY
 function renderMFE(closed){
   const withMFE=closed.filter(t=>n(t.MFE)>0);
   const ctx=document.getElementById('mfeChart').getContext('2d');
   if(charts.mfe) charts.mfe.destroy();
   if(!withMFE.length){
-    document.getElementById('mfeSummary').innerHTML='<div style="color:var(--text3);font-size:11px;">Add MFE column.</div>';
+    document.getElementById('mfeSummary').innerHTML='<div style="color:var(--text3);font-size:11px;">Add <b style="color:var(--accent)">MFE</b> column to your Google Sheet.</div>';
     charts.mfe=new Chart(ctx,{type:'scatter',data:{datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
     return;
   }
@@ -1170,20 +1184,38 @@ function renderMFE(closed){
                 tooltip:{callbacks:{label:c=>`${c.raw.sym||''} | MFE: ${c.raw.x}% | Exit: ${c.raw.y?.toFixed(2)}%`}}},
       scales:{
         x:{title:{display:true,text:'MFE %',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}},
-        y:{title:{display:true,text:'Exit %',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}}
+        y:{title:{display:true,text:'Exit % Move',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}}
       }
     }
   });
+  
   const avgMFEWin=ws.reduce((a,t)=>a+n(t.MFE),0)/(ws.length||1);
-  document.getElementById('mfeSummary').innerHTML=`<div class="bench-row"><span>Avg MFE — Wins</span><b class="pos">+${avgMFEWin.toFixed(2)}%</b></div>`;
+  const avgMFELoss=ls.reduce((a,t)=>a+n(t.MFE),0)/(ls.length||1);
+  const maxMFE=Math.max(...withMFE.map(t=>n(t.MFE)));
+  const winCapture = ws.filter(t=>n(t.MFE)>0).map(t=>calcPctMove(t)/n(t.MFE)*100);
+  const avgCapture = winCapture.length ? winCapture.reduce((a,b)=>a+b,0)/winCapture.length : 0;
+  const lossWithMFE = ls.filter(t=>n(t.MFE)>0).length;
+  const pctLossHadMFE = withMFE.length ? (lossWithMFE/withMFE.length*100).toFixed(1) : 0;
+
+  document.getElementById('mfeSummary').innerHTML=`
+    <div class="bench-row"><span>Trades with MFE data</span><b>${withMFE.length}</b></div>
+    <div class="bench-row"><span>Avg MFE — Winners</span><b class="pos">+${avgMFEWin.toFixed(2)}%</b></div>
+    <div class="bench-row"><span>Avg MFE — Losers</span><b class="pos">+${avgMFELoss.toFixed(2)}%</b></div>
+    <div class="bench-row"><span>Max MFE ever</span><b class="pos">+${maxMFE.toFixed(2)}%</b></div>
+    <div class="bench-row"><span>Avg capture rate (wins)</span><b style="color:var(--accent)">${avgCapture.toFixed(1)}%</b></div>
+    <div class="bench-row"><span>% Losses with MFE</span><b class="neg">${pctLossHadMFE}%</b></div>
+    <div style="margin-top:10px;padding:10px;background:var(--bg3);border-radius:var(--r);font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7;">
+      💡 <b style="color:var(--text2)">MFE Insight:</b> Capture rate of ${avgCapture.toFixed(1)}% means you keep that much of the trade's potential. ${parseFloat(pctLossHadMFE)>40?'Many losses had positive MFE — consider trailing stops.':'Solid exit management.'}
+    </div>`;
 }
 
+// RESTORED DETAILED ETD SUMMARY
 function renderETD(closed){
   const withETD=closed.filter(t=>n(t.ETD)>0&&n(t.MFE)>0);
   const ctx=document.getElementById('etdChart').getContext('2d');
   if(charts.etd) charts.etd.destroy();
   if(!withETD.length){
-    document.getElementById('etdSummary').innerHTML='<div style="color:var(--text3);font-size:11px;">Add ETD column.</div>';
+    document.getElementById('etdSummary').innerHTML='<div style="color:var(--text3);font-size:11px;">Add <b style="color:var(--accent)">ETD</b> column to your Google Sheet.</div>';
     charts.etd=new Chart(ctx,{type:'scatter',data:{datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
     return;
   }
@@ -1195,14 +1227,25 @@ function renderETD(closed){
       plugins:{legend:{labels:{font:{family:'JetBrains Mono',size:9},color:'#94a3b8',boxWidth:10}},
                 tooltip:{callbacks:{label:c=>`${c.raw.sym||''} | MFE: ${c.raw.x}% | ETD: ${c.raw.y}%`}}},
       scales:{
-        x:{title:{display:true,text:'MFE %',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}},
-        y:{title:{display:true,text:'ETD %',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}}
+        x:{title:{display:true,text:'MFE % (How far it ran)',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{title:{display:true,text:'ETD % (Gave back)',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}}
       }
     }
   });
+
+  const avgETDWin=ws.reduce((a,t)=>a+n(t.ETD),0)/(ws.length||1);
+  const maxETD=Math.max(...withETD.map(t=>n(t.ETD)));
   const exitQuality=withETD.filter(t=>n(t.MFE)>0).map(t=>(1-(n(t.ETD)/n(t.MFE)))*100);
   const avgExitQ=exitQuality.length?exitQuality.reduce((a,b)=>a+b,0)/exitQuality.length:0;
-  document.getElementById('etdSummary').innerHTML=`<div class="bench-row"><span>Exit Quality</span><b style="color:var(--accent)">${avgExitQ.toFixed(1)}%</b></div>`;
+
+  document.getElementById('etdSummary').innerHTML=`
+    <div class="bench-row"><span>Trades with ETD data</span><b>${withETD.length}</b></div>
+    <div class="bench-row"><span>Avg ETD — Winners</span><b class="neg">${avgETDWin.toFixed(2)}%</b></div>
+    <div class="bench-row"><span>Max ETD ever</span><b class="neg">${maxETD.toFixed(2)}%</b></div>
+    <div class="bench-row"><span>Avg exit quality score</span><b style="color:var(--accent)">${avgExitQ.toFixed(1)}%</b></div>
+    <div style="margin-top:10px;padding:10px;background:var(--bg3);border-radius:var(--r);font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7;">
+      💡 <b style="color:var(--text2)">ETD Insight:</b> High ETD means you are giving back too much profit from the peak. Exit quality of ${avgExitQ.toFixed(0)}% shows how close to the peak you are selling.
+    </div>`;
 }
 
 function renderSetupCharts(closed){
@@ -1352,7 +1395,6 @@ function renderHeatmap(){
           const cls = ts.length===0 ? 'hm-cell-none' : cellClass(pnl);
           moPnl += pnl; moCount += ts.length; moWins += ts.filter(t=>calcPnL(t)>0).length;
 
-          // Tooltip Data Build
           const tsString = ts.map(t => {
               const tpnl = calcPnL(t);
               const tpct = calcPctMove(t);
@@ -1462,8 +1504,8 @@ function saveReview(){
 function deleteReview(id){weeklyReviews=weeklyReviews.filter(r=>r.id!==id);localStorage.setItem('td_reviews',JSON.stringify(weeklyReviews));renderReviews();}
 function renderReviews(){
   const c=document.getElementById('reviewHistory');
-  if(!weeklyReviews.length){c.innerHTML='<div style="padding:24px;text-align:center;">No reviews yet.</div>';return;}
-  c.innerHTML=weeklyReviews.map(r=>`<div class="review-entry"><div class="review-entry-date"><b>${r.week}</b> [${r.mood}] <button onclick="deleteReview(${r.id})">✕</button></div><div>Lesson: ${r.lesson}</div></div>`).join('');
+  if(!weeklyReviews.length){c.innerHTML='<div style="padding:24px;text-align:center;color:var(--text3);font-size:12px;">No reviews yet.</div>';return;}
+  c.innerHTML=weeklyReviews.map(r=>`<div class="review-entry"><div class="review-entry-date"><b style="color:var(--accent)">${r.week}</b> <span style="margin-left:10px;padding:2px 7px;border-radius:4px;background:var(--bg4);font-size:9px;">${r.mood}</span> <button onclick="deleteReview(${r.id})" style="float:right;background:none;border:none;color:var(--text3);cursor:pointer;font-family:var(--mono);">✕</button></div><div class="review-entry-content">${r.lesson?`<div>Lesson: ${r.lesson}</div>`:''}</div></div>`).join('');
 }
 
 window.onload=function(){renderReviews();loadData();};
