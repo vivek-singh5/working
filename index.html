@@ -248,12 +248,12 @@ select:focus,input:focus{border-color:var(--accent);}
       </div>
       <div class="date-filter-dropdown" id="heatmapFilterDropdown">
         <div class="dfd-option" onclick="applyDatePreset('heatmap','all',this)">All time</div>
-        <div class="dfd-option" onclick="applyDatePreset('heatmap','12mo',this)">Last 12 months</div>
+        <div class="dfd-option active" onclick="applyDatePreset('heatmap','12mo',this)">Last 12 months</div>
         <div class="dfd-option" onclick="applyDatePreset('heatmap','6mo',this)">Last 6 months</div>
         <div class="dfd-option" onclick="applyDatePreset('heatmap','3mo',this)">Last 3 months</div>
         <div class="dfd-option" onclick="applyDatePreset('heatmap','ytd',this)">This year (YTD)</div>
         <div class="dfd-option" onclick="applyDatePreset('heatmap','fy2526',this)">FY 2025-26</div>
-        <div class="dfd-option active" onclick="applyDatePreset('heatmap','fy2627',this)">FY 2026-27</div>
+        <div class="dfd-option" onclick="applyDatePreset('heatmap','fy2627',this)">FY 2026-27</div>
         <div class="dfd-divider"></div>
         <div class="dfd-custom">
           <div class="dfd-custom-label">Custom range</div>
@@ -422,7 +422,6 @@ select:focus,input:focus{border-color:var(--accent);}
     </table>
   </div>
 
-  <!-- RESTORED: BOTTOM VISUALS -->
   <div class="slabel">📊 Monthly P&L</div>
   <div class="card" style="margin-bottom:20px;">
     <div class="card-title">MONTHLY NET P&L</div>
@@ -631,7 +630,6 @@ function switchTab(id){
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',ids[i]===id));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+id));
   if(id==='overview') renderHeatmap();
-  if(id==='calculators') { runPS(); runEx(); runRM(); runBR(); runBE(); runDD(); }
 }
 
 const TODAY = new Date(2026,3,27); 
@@ -1075,12 +1073,13 @@ function renderMAEMFEETD(closed){
   renderETD(closed);
 }
 
+// DETAILED MAE SUMMARY RESTORED
 function renderMAE(closed){
   const withMAE=closed.filter(t=>n(t.MAE)!==0); 
   const ctx=document.getElementById('maeChart').getContext('2d');
   if(charts.mae) charts.mae.destroy();
   if(!withMAE.length){
-    document.getElementById('maeSummary').innerHTML='<div style="color:var(--text3);font-size:11px;line-height:1.8;">Add a <b style="color:var(--accent)">MAE</b> column to your Google Sheet.</div>';
+    document.getElementById('maeSummary').innerHTML='<div style="color:var(--text3);font-size:11px;line-height:1.8;">Add a <b style="color:var(--accent)">MAE</b> column.</div>';
     charts.mae=new Chart(ctx,{type:'scatter',data:{datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
     return;
   }
@@ -1097,6 +1096,7 @@ function renderMAE(closed){
       scales:{x:{title:{display:true,text:'Max Drawdown (MAE %)',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}},
               y:{title:{display:true,text:'Exit % Move',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}}}}
   });
+  
   const aw=Math.abs(ws.reduce((a,t)=>a+n(t.MAE),0))/(ws.length||1);
   const al=Math.abs(ls.reduce((a,t)=>a+n(t.MAE),0))/(ls.length||1);
   const maxMAE=Math.max(...withMAE.map(t=>Math.abs(n(t.MAE))));
@@ -1104,14 +1104,19 @@ function renderMAE(closed){
     const e=n(t.Entry),sl=n(t.SL);
     return e&&sl ? a+Math.abs((sl-e)/e*100) : a;
   },0)/(closed.length||1);
+
   document.getElementById('maeSummary').innerHTML=`
     <div class="bench-row"><span>Trades with MAE data</span><b>${withMAE.length}</b></div>
     <div class="bench-row"><span>Avg Drawdown — Winners</span><b class="neg">${aw.toFixed(2)}%</b></div>
     <div class="bench-row"><span>Avg Drawdown — Losers</span><b class="neg">${al.toFixed(2)}%</b></div>
     <div class="bench-row"><span>Max Drawdown ever</span><b class="neg">${maxMAE.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Avg SL distance</span><b style="color:var(--accent)">${SL_PCT.toFixed(2)}%</b></div>`;
+    <div class="bench-row"><span>Avg SL distance</span><b style="color:var(--accent)">${SL_PCT.toFixed(2)}%</b></div>
+    <div style="margin-top:10px;padding:10px;background:var(--bg3);border-radius:var(--r);font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7;">
+      💡 <b style="color:var(--text2)">MAE Insight:</b> If avg MAE on winners (${aw.toFixed(1)}%) is much lower than avg SL (${SL_PCT.toFixed(1)}%), your stops may be too wide. Tighter stops = better capital efficiency.
+    </div>`;
 }
 
+// DETAILED MFE SUMMARY RESTORED
 function renderMFE(closed){
   const withMFE=closed.filter(t=>n(t.MFE)>0);
   const ctx=document.getElementById('mfeChart').getContext('2d');
@@ -1137,7 +1142,10 @@ function renderMFE(closed){
       }
     }
   });
+  
   const avgMFEWin=ws.reduce((a,t)=>a+n(t.MFE),0)/(ws.length||1);
+  const avgMFELoss=ls.reduce((a,t)=>a+n(t.MFE),0)/(ls.length||1);
+  const maxMFE=Math.max(...withMFE.map(t=>n(t.MFE)));
   const winCapture = ws.filter(t=>n(t.MFE)>0).map(t=>calcPctMove(t)/n(t.MFE)*100);
   const avgCapture = winCapture.length ? winCapture.reduce((a,b)=>a+b,0)/winCapture.length : 0;
   const lossWithMFE = ls.filter(t=>n(t.MFE)>0).length;
@@ -1145,16 +1153,22 @@ function renderMFE(closed){
 
   document.getElementById('mfeSummary').innerHTML=`
     <div class="bench-row"><span>Avg MFE — Winners</span><b class="pos">+${avgMFEWin.toFixed(2)}%</b></div>
+    <div class="bench-row"><span>Avg MFE — Losers</span><b class="pos">+${avgMFELoss.toFixed(2)}%</b></div>
+    <div class="bench-row"><span>Max MFE ever</span><b class="pos">+${maxMFE.toFixed(2)}%</b></div>
     <div class="bench-row"><span>Avg capture rate (wins)</span><b style="color:var(--accent)">${avgCapture.toFixed(1)}%</b></div>
-    <div class="bench-row"><span>% Losses with MFE</span><b class="neg">${pctLossHadMFE}%</b></div>`;
+    <div class="bench-row"><span>% Losses with MFE</span><b class="neg">${pctLossHadMFE}%</b></div>
+    <div style="margin-top:10px;padding:10px;background:var(--bg3);border-radius:var(--r);font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7;">
+      💡 <b style="color:var(--text2)">MFE Insight:</b> Capture rate of ${avgCapture.toFixed(1)}% means you keep that much of the trade's potential. Solid exit management reduces regret.
+    </div>`;
 }
 
+// DETAILED ETD SUMMARY RESTORED
 function renderETD(closed){
   const withETD=closed.filter(t=>n(t.ETD)>0&&n(t.MFE)>0);
   const ctx=document.getElementById('etdChart').getContext('2d');
   if(charts.etd) charts.etd.destroy();
   if(!withETD.length){
-    document.getElementById('etdSummary').innerHTML='<div style="color:var(--text3);font-size:11px;">Add <b style="color:var(--accent)">ETD</b> column.</div>';
+    document.getElementById('etdSummary').innerHTML='<div style="color:var(--text3);font-size:11px;">Add <b style="color:var(--accent)">ETD</b> and <b style="color:var(--accent)">MFE</b> columns.</div>';
     charts.etd=new Chart(ctx,{type:'scatter',data:{datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
     return;
   }
@@ -1166,14 +1180,25 @@ function renderETD(closed){
       plugins:{legend:{labels:{font:{family:'JetBrains Mono',size:9},color:'#94a3b8',boxWidth:10}},
                 tooltip:{callbacks:{label:c=>`${c.raw.sym||''} | MFE: ${c.raw.x}% | ETD: ${c.raw.y}%`}}},
       scales:{
-        x:{title:{display:true,text:'MFE %',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}},
-        y:{title:{display:true,text:'ETD %',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}}
+        x:{title:{display:true,text:'MFE % (How far it ran)',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{title:{display:true,text:'ETD % (Gave back)',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}}
       }
     }
   });
+
+  const avgETDWin=ws.reduce((a,t)=>a+n(t.ETD),0)/(ws.length||1);
+  const maxETD=Math.max(...withETD.map(t=>n(t.ETD)));
   const exitQuality=withETD.filter(t=>n(t.MFE)>0).map(t=>(1-(n(t.ETD)/n(t.MFE)))*100);
   const avgExitQ=exitQuality.length?exitQuality.reduce((a,b)=>a+b,0)/exitQuality.length:0;
-  document.getElementById('etdSummary').innerHTML=`<div class="bench-row"><span>Avg exit quality score</span><b style="color:var(--accent)">${avgExitQ.toFixed(1)}%</b></div>`;
+
+  document.getElementById('etdSummary').innerHTML=`
+    <div class="bench-row"><span>Trades with ETD data</span><b>${withETD.length}</b></div>
+    <div class="bench-row"><span>Avg ETD — Winners</span><b class="neg">${avgETDWin.toFixed(2)}%</b></div>
+    <div class="bench-row"><span>Max ETD ever</span><b class="neg">${maxETD.toFixed(2)}%</b></div>
+    <div class="bench-row"><span>Avg exit quality score</span><b style="color:var(--accent)">${avgExitQ.toFixed(1)}%</b></div>
+    <div style="margin-top:10px;padding:10px;background:var(--bg3);border-radius:var(--r);font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7;">
+      💡 <b style="color:var(--text2)">ETD Insight:</b> High ETD means you are giving back too much profit from the peak. Exit quality of ${avgExitQ.toFixed(0)}% shows how close to the peak you are selling.
+    </div>`;
 }
 
 function renderSetupCharts(closed){
@@ -1236,6 +1261,7 @@ function renderCalendar(){
   const grid=document.getElementById('calGrid');
   grid.innerHTML='';
   for(let i=0;i<firstDay;i++) grid.innerHTML+=`<div class="cal-cell cal-empty"></div>`;
+  
   const dayMap={};
   const monthTrades=[];
   allTrades.forEach(t=>{
@@ -1247,6 +1273,7 @@ function renderCalendar(){
     dayMap[day].pnl+=p;dayMap[day].count++;
     monthTrades.push({...t, _pnl: p});
   });
+
   let mPnl=0,mWins=0,mCount=0;
   for(let d=1;d<=daysInMonth;d++){
     const dd=dayMap[d]||{pnl:0,count:0};
@@ -1265,9 +1292,9 @@ function renderCalendar(){
   
   const sorted = monthTrades.sort((a,b)=>b._pnl - a._pnl);
   document.getElementById('calBestTrades').innerHTML = sorted.slice(0,4).map(t=>`
-    <div class="bench-row"><span>${t.Symbol}</span><b class="pos">${formatINR(t._pnl)}</b></div>`).join('') || '—';
+    <div class="bench-row"><span>${t.Symbol}</span><b class="pos">${formatINR(t._pnl)}</b></div>`).join('') || '<div style="font-size:11px;color:var(--text3)">No wins</div>';
   document.getElementById('calWorstTrades').innerHTML = sorted.reverse().slice(0,4).filter(t=>t._pnl<0).map(t=>`
-    <div class="bench-row"><span>${t.Symbol}</span><b class="neg">${formatINR(t._pnl)}</b></div>`).join('') || '—';
+    <div class="bench-row"><span>${t.Symbol}</span><b class="neg">${formatINR(t._pnl)}</b></div>`).join('') || '<div style="font-size:11px;color:var(--text3)">No losses</div>';
 }
 
 function renderHeatmap(){
