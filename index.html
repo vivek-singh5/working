@@ -61,7 +61,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:22p
 .alert-banner{display:none;background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.3);border-radius:var(--r);padding:12px 16px;margin-bottom:16px;font-family:var(--mono);font-size:12px;color:var(--red);align-items:center;gap:10px;}
 .alert-banner.show{display:flex;}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;}
 .grid-2-1{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:20px;}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:20px;}
 .card-title{font-size:10px;color:var(--text2);font-family:var(--mono);margin-bottom:14px;text-transform:uppercase;letter-spacing:0.08em;display:flex;align-items:center;gap:8px;}
@@ -151,9 +150,10 @@ select:focus,input:focus{border-color:var(--accent);}
 .hm-month{display:flex;flex-direction:column;min-width:130px;border-right:1px solid var(--border);}
 .hm-month:last-child{border-right:none;}
 .hm-month-header{padding:10px 12px 6px;font-family:var(--mono);font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;background:var(--bg3);border-bottom:1px solid var(--border);}
-.hm-day-row{display:grid;grid-template-columns:28px repeat(5,1fr);gap:1px;padding:2px 4px;}
-.hm-dow-label{font-family:var(--mono);font-size:8px;color:var(--text3);padding:2px 0;text-align:center;display:flex;align-items:center;justify-content:center;}
-.hm-cell{height:22px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:8px;font-weight:600;cursor:default;position:relative;transition:transform .1s;}
+.hm-day-grid{display:flex;flex-direction:column;padding:4px;}
+.hm-day-row{display:flex;align-items:center;gap:1px;margin-bottom:1px;}
+.hm-dow-label{width:28px;font-family:var(--mono);font-size:8px;color:var(--text3);text-align:center;flex-shrink:0;}
+.hm-cell{width:22px;height:22px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:8px;font-weight:600;cursor:default;position:relative;transition:transform .1s;}
 .hm-cell:hover{transform:scale(1.2);z-index:10;}
 .hm-cell-empty{background:transparent;}
 .hm-cell-none{background:var(--bg3);color:var(--text3);}
@@ -163,7 +163,6 @@ select:focus,input:focus{border-color:var(--accent);}
 .hm-cell-small-loss{background:rgba(244,63,94,0.25);color:var(--red);}
 .hm-cell-large-loss{background:rgba(244,63,94,0.75);color:#fff;}
 .hm-month-footer{padding:8px 12px;border-top:1px solid var(--border);background:var(--bg3);display:flex;flex-direction:column;gap:3px;}
-.hm-footer-pnl{font-family:var(--mono);font-size:10px;font-weight:700;}
 .hm-footer-meta{font-family:var(--mono);font-size:9px;color:var(--text3);}
 .hm-legend{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px;}
 .hm-legend-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;color:var(--text3);}
@@ -174,7 +173,7 @@ select:focus,input:focus{border-color:var(--accent);}
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:3px;}
 @media(max-width:900px){
-  .grid-2,.grid-2-1,.grid-3,.calendar-layout,.review-grid{grid-template-columns:1fr;}
+  .grid-2,.grid-2-1,.calendar-layout,.review-grid{grid-template-columns:1fr;}
   .tabs{overflow-x:auto;}
   .kpi-row{flex-wrap:wrap;}
 }
@@ -213,7 +212,6 @@ select:focus,input:focus{border-color:var(--accent);}
   <div class="tab" onclick="switchTab('journal')">WEEKLY JOURNAL</div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════ OVERVIEW TAB -->
 <div class="tab-panel active" id="tab-overview">
 
   <div class="slabel">🛰 Active Portfolio</div>
@@ -251,37 +249,6 @@ select:focus,input:focus{border-color:var(--accent);}
     <div style="margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--text2);" id="streakSummary"></div>
   </div>
 
-  <!-- MOVED: Overview filter relocated below streak -->
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-    <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;">Overview Filter</div>
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-      <div class="date-filter-wrap" id="overviewFilterWrap">
-        <div class="date-filter-btn" id="overviewFilterBtn" onclick="toggleDateFilter('overview')">
-          <span>📅</span><span id="overviewFilterLabel">All Time</span><span class="arrow" id="overviewFilterArrow">▼</span>
-        </div>
-        <div class="date-filter-dropdown" id="overviewFilterDropdown">
-          <div class="dfd-option active" onclick="applyDatePreset('overview','all',this)">All time</div>
-          <div class="dfd-option" onclick="applyDatePreset('overview','week',this)">This week</div>
-          <div class="dfd-option" onclick="applyDatePreset('overview','month',this)">This month</div>
-          <div class="dfd-option" onclick="applyDatePreset('overview','ytd',this)">This year (YTD)</div>
-          <div class="dfd-option" onclick="applyDatePreset('overview','fy2526',this)">FY 2025-26</div>
-          <div class="dfd-option" onclick="applyDatePreset('overview','fy2627',this)">FY 2026-27</div>
-          <div class="dfd-divider"></div>
-          <div class="dfd-custom">
-            <div class="dfd-custom-label">Custom range</div>
-            <div class="dfd-custom-row">
-              <input type="date" id="overviewFrom"/>
-              <span>–</span>
-              <input type="date" id="overviewTo"/>
-            </div>
-            <button class="dfd-apply" onclick="applyDateCustom('overview')">Apply</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MOVED: Heatmap relocated to Overview -->
   <div class="slabel">🗓 Heatmap Calendar</div>
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
     <div class="date-filter-wrap" id="heatmapFilterWrap">
@@ -321,7 +288,35 @@ select:focus,input:focus{border-color:var(--accent);}
       <div class="heatmap-grid" id="heatmapGrid"></div>
     </div>
   </div>
-  <div class="kpi-row" id="heatmap-kpis" style="margin-bottom: 28px;"></div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+    <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;">Overview Filter</div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <div class="date-filter-wrap" id="overviewFilterWrap">
+        <div class="date-filter-btn" id="overviewFilterBtn" onclick="toggleDateFilter('overview')">
+          <span>📅</span><span id="overviewFilterLabel">All Time</span><span class="arrow" id="overviewFilterArrow">▼</span>
+        </div>
+        <div class="date-filter-dropdown" id="overviewFilterDropdown">
+          <div class="dfd-option active" onclick="applyDatePreset('overview','all',this)">All time</div>
+          <div class="dfd-option" onclick="applyDatePreset('overview','week',this)">This week</div>
+          <div class="dfd-option" onclick="applyDatePreset('overview','month',this)">This month</div>
+          <div class="dfd-option" onclick="applyDatePreset('overview','ytd',this)">This year (YTD)</div>
+          <div class="dfd-option" onclick="applyDatePreset('overview','fy2526',this)">FY 2025-26</div>
+          <div class="dfd-option" onclick="applyDatePreset('overview','fy2627',this)">FY 2026-27</div>
+          <div class="dfd-divider"></div>
+          <div class="dfd-custom">
+            <div class="dfd-custom-label">Custom range</div>
+            <div class="dfd-custom-row">
+              <input type="date" id="overviewFrom"/>
+              <span>–</span>
+              <input type="date" id="overviewTo"/>
+            </div>
+            <button class="dfd-apply" onclick="applyDateCustom('overview')">Apply</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="slabel">📊 Performance Overview</div>
   <div class="kpi-row" id="kpi-performance"></div>
@@ -338,9 +333,7 @@ select:focus,input:focus{border-color:var(--accent);}
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════ ANALYTICS TAB -->
 <div class="tab-panel" id="tab-analytics">
-
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
     <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;">Analytics Filter</div>
     <div class="date-filter-wrap" id="analyticsFilterWrap">
@@ -385,8 +378,6 @@ select:focus,input:focus{border-color:var(--accent);}
   </div>
 
   <div class="slabel">📉 Trade Excursion Analysis (MAE / MFE / ETD)</div>
-
-  <!-- MAE SECTION (Logic Fixed) -->
   <div style="margin-bottom:8px;font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;">Max Adverse Excursion (MAE)</div>
   <div class="grid-2" style="margin-bottom:20px;">
     <div class="card">
@@ -411,10 +402,10 @@ select:focus,input:focus{border-color:var(--accent);}
     </div>
   </div>
 
-  <div style="margin-bottom:8px;font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;">End-Trade Drawdown (ETD) — How much did you give back from MFE?</div>
+  <div style="margin-bottom:8px;font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;">End-Trade Drawdown (ETD)</div>
   <div class="grid-2" style="margin-bottom:20px;">
     <div class="card">
-      <div class="card-title">ETD SCATTER — MFE vs ETD (exit quality)</div>
+      <div class="card-title">ETD SCATTER</div>
       <div style="height:220px;"><canvas id="etdChart"></canvas></div>
     </div>
     <div class="card">
@@ -459,7 +450,6 @@ select:focus,input:focus{border-color:var(--accent);}
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════ P&L CALENDAR TAB -->
 <div class="tab-panel" id="tab-calendar">
   <div class="slabel">📅 P&L Calendar</div>
   <div class="calendar-layout">
@@ -487,7 +477,6 @@ select:focus,input:focus{border-color:var(--accent);}
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════ HISTORY TAB -->
 <div class="tab-panel" id="tab-history">
   <div class="table-wrap">
     <div class="table-toolbar">
@@ -515,7 +504,6 @@ select:focus,input:focus{border-color:var(--accent);}
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════ JOURNAL TAB -->
 <div class="tab-panel" id="tab-journal">
   <div class="slabel">📝 Weekly Review</div>
   <div class="card" style="margin-bottom:20px;">
@@ -795,7 +783,6 @@ function onFilterChange(scope){
     renderEquity(filterClosedByScope('overview'));
     renderHOF(filterClosedByScope('overview'));
     renderStreak(getClosed()); 
-    renderHeatmap();
   }
   if(scope==='analytics'){
     const c=filterClosedByScope('analytics');
@@ -1134,13 +1121,12 @@ function renderMAEMFEETD(closed){
   renderETD(closed);
 }
 
-// FIX: Corrected MAE filtering to include negative percentage values from spreadsheet
 function renderMAE(closed){
   const withMAE=closed.filter(t=>n(t.MAE)!==0); 
   const ctx=document.getElementById('maeChart').getContext('2d');
   if(charts.mae) charts.mae.destroy();
   if(!withMAE.length){
-    document.getElementById('maeSummary').innerHTML='<div style="color:var(--text3);font-size:11px;line-height:1.8;">Add a <b style="color:var(--accent)">MAE</b> column to your Google Sheet.<br><br>MAE = max % adverse move from entry during the trade before it recovered or hit SL.</div>';
+    document.getElementById('maeSummary').innerHTML='<div style="color:var(--text3);font-size:11px;line-height:1.8;">Add a MAE column.</div>';
     charts.mae=new Chart(ctx,{type:'scatter',data:{datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
     return;
   }
@@ -1148,7 +1134,6 @@ function renderMAE(closed){
   charts.mae=new Chart(ctx,{
     type:'scatter',
     data:{datasets:[
-      // standardizing X to absolute drawdown for visualization
       {label:'Wins',data:ws.map(t=>({x:Math.abs(n(t.MAE)),y:calcPctMove(t),sym:t.Symbol})),backgroundColor:'rgba(16,185,129,0.6)',pointRadius:5},
       {label:'Losses',data:ls.map(t=>({x:Math.abs(n(t.MAE)),y:calcPctMove(t),sym:t.Symbol})),backgroundColor:'rgba(244,63,94,0.6)',pointRadius:5},
     ]},
@@ -1160,20 +1145,9 @@ function renderMAE(closed){
   });
   const aw=Math.abs(ws.reduce((a,t)=>a+n(t.MAE),0))/(ws.length||1);
   const al=Math.abs(ls.reduce((a,t)=>a+n(t.MAE),0))/(ls.length||1);
-  const maxMAE=Math.max(...withMAE.map(t=>Math.abs(n(t.MAE))));
-  const SL_PCT = closed.reduce((a,t)=>{
-    const e=n(t.Entry),sl=n(t.SL);
-    return e&&sl ? a+Math.abs((sl-e)/e*100) : a;
-  },0)/(closed.length||1);
   document.getElementById('maeSummary').innerHTML=`
-    <div class="bench-row"><span>Trades with MAE data</span><b>${withMAE.length}</b></div>
-    <div class="bench-row"><span>Avg Drawdown — Winners</span><b class="neg">${aw.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Avg Drawdown — Losers</span><b class="neg">${al.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Max Drawdown ever</span><b class="neg">${maxMAE.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Avg SL distance</span><b style="color:var(--accent)">${SL_PCT.toFixed(2)}%</b></div>
-    <div style="margin-top:10px;padding:10px;background:var(--bg3);border-radius:var(--r);font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7;">
-      💡 <b style="color:var(--text2)">MAE Insight:</b> If avg MAE on winners (${aw.toFixed(1)}%) is much lower than avg SL (${SL_PCT.toFixed(1)}%), your stops may be too wide.
-    </div>`;
+    <div class="bench-row"><span>Avg DD — Wins</span><b class="neg">${aw.toFixed(2)}%</b></div>
+    <div class="bench-row"><span>Avg DD — Losses</span><b class="neg">${al.toFixed(2)}%</b></div>`;
 }
 
 function renderMFE(closed){
@@ -1181,15 +1155,11 @@ function renderMFE(closed){
   const ctx=document.getElementById('mfeChart').getContext('2d');
   if(charts.mfe) charts.mfe.destroy();
   if(!withMFE.length){
-    document.getElementById('mfeSummary').innerHTML='<div style="color:var(--text3);font-size:11px;line-height:1.8;">Add a <b style="color:var(--accent)">MFE</b> column to your Google Sheet.</div>';
+    document.getElementById('mfeSummary').innerHTML='<div style="color:var(--text3);font-size:11px;">Add MFE column.</div>';
     charts.mfe=new Chart(ctx,{type:'scatter',data:{datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
     return;
   }
   const ws=withMFE.filter(t=>calcPnL(t)>0),ls=withMFE.filter(t=>calcPnL(t)<=0);
-  const avgMFEWin=ws.reduce((a,t)=>a+n(t.MFE),0)/(ws.length||1);
-  const avgMFELoss=ls.reduce((a,t)=>a+n(t.MFE),0)/(ls.length||1);
-  const maxMFE=Math.max(...withMFE.map(t=>n(t.MFE)));
-
   charts.mfe=new Chart(ctx,{
     type:'scatter',
     data:{datasets:[
@@ -1205,17 +1175,8 @@ function renderMFE(closed){
       }
     }
   });
-
-  const winCapture = ws.filter(t=>n(t.MFE)>0).map(t=>calcPctMove(t)/n(t.MFE)*100);
-  const avgCapture = winCapture.length ? winCapture.reduce((a,b)=>a+b,0)/winCapture.length : 0;
-  const pctLossHadMFE = withMFE.length ? (ls.filter(t=>n(t.MFE)>0).length/withMFE.length*100).toFixed(1) : 0;
-
-  document.getElementById('mfeSummary').innerHTML=`
-    <div class="bench-row"><span>Trades with MFE data</span><b>${withMFE.length}</b></div>
-    <div class="bench-row"><span>Avg MFE — Winners</span><b class="pos">+${avgMFEWin.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Avg MFE — Losers</span><b class="pos">+${avgMFELoss.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Avg capture rate (wins)</span><b style="color:var(--accent)">${avgCapture.toFixed(1)}%</b></div>
-    <div class="bench-row"><span>% Losses with MFE</span><b class="neg">${pctLossHadMFE}%</b></div>`;
+  const avgMFEWin=ws.reduce((a,t)=>a+n(t.MFE),0)/(ws.length||1);
+  document.getElementById('mfeSummary').innerHTML=`<div class="bench-row"><span>Avg MFE — Wins</span><b class="pos">+${avgMFEWin.toFixed(2)}%</b></div>`;
 }
 
 function renderETD(closed){
@@ -1223,17 +1184,14 @@ function renderETD(closed){
   const ctx=document.getElementById('etdChart').getContext('2d');
   if(charts.etd) charts.etd.destroy();
   if(!withETD.length){
-    document.getElementById('etdSummary').innerHTML='<div style="color:var(--text3);font-size:11px;line-height:1.8;">Add <b style="color:var(--accent)">ETD</b> and <b style="color:var(--accent)">MFE</b> columns.</div>';
+    document.getElementById('etdSummary').innerHTML='<div style="color:var(--text3);font-size:11px;">Add ETD column.</div>';
     charts.etd=new Chart(ctx,{type:'scatter',data:{datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
     return;
   }
-  const ws=withETD.filter(t=>calcPnL(t)>0),ls=withETD.filter(t=>calcPnL(t)<=0);
+  const ws=withETD.filter(t=>calcPnL(t)>0);
   charts.etd=new Chart(ctx,{
     type:'scatter',
-    data:{datasets:[
-      {label:'Wins',  data:ws.map(t=>({x:n(t.MFE),y:n(t.ETD),sym:t.Symbol})),backgroundColor:'rgba(16,185,129,0.6)',pointRadius:5},
-      {label:'Losses',data:ls.map(t=>({x:n(t.MFE),y:n(t.ETD),sym:t.Symbol})),backgroundColor:'rgba(244,63,94,0.6)',pointRadius:5},
-    ]},
+    data:{datasets:[{label:'Wins', data:ws.map(t=>({x:n(t.MFE),y:n(t.ETD),sym:t.Symbol})),backgroundColor:'rgba(16,185,129,0.6)',pointRadius:5}]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{labels:{font:{family:'JetBrains Mono',size:9},color:'#94a3b8',boxWidth:10}},
                 tooltip:{callbacks:{label:c=>`${c.raw.sym||''} | MFE: ${c.raw.x}% | ETD: ${c.raw.y}%`}}},
@@ -1243,15 +1201,9 @@ function renderETD(closed){
       }
     }
   });
-
-  const avgETDWin=ws.reduce((a,t)=>a+n(t.ETD),0)/(ws.length||1);
   const exitQuality=withETD.filter(t=>n(t.MFE)>0).map(t=>(1-(n(t.ETD)/n(t.MFE)))*100);
   const avgExitQ=exitQuality.length?exitQuality.reduce((a,b)=>a+b,0)/exitQuality.length:0;
-
-  document.getElementById('etdSummary').innerHTML=`
-    <div class="bench-row"><span>Trades with ETD data</span><b>${withETD.length}</b></div>
-    <div class="bench-row"><span>Avg ETD — Winners</span><b class="neg">${avgETDWin.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Avg exit quality score</span><b style="color:${avgExitQ>=70?'var(--green)':avgExitQ>=50?'var(--accent)':'var(--red)'};">${avgExitQ.toFixed(1)}%</b></div>`;
+  document.getElementById('etdSummary').innerHTML=`<div class="bench-row"><span>Exit Quality</span><b style="color:var(--accent)">${avgExitQ.toFixed(1)}%</b></div>`;
 }
 
 function renderSetupCharts(closed){
@@ -1311,35 +1263,25 @@ function renderCalendar(){
   document.getElementById('calMonthYear').textContent=currentCalDate.toLocaleString('default',{month:'long',year:'numeric'});
   document.getElementById('calDayNames').innerHTML=['SUN','MON','TUE','WED','THU','FRI','SAT'].map(d=>`<div class="cal-day-name">${d}</div>`).join('');
   const firstDay=new Date(yr,mo,1).getDay(),daysInMonth=new Date(yr,mo+1,0).getDate();
-  const today=TODAY;
   const grid=document.getElementById('calGrid');
   grid.innerHTML='';
   for(let i=0;i<firstDay;i++) grid.innerHTML+=`<div class="cal-cell cal-empty"></div>`;
-  const dayMap={};const monthTrades=[];
+  const dayMap={};
   allTrades.forEach(t=>{
     const d=parseSheetDate(t['Exit Date']);
     if(!d||d.getFullYear()!==yr||d.getMonth()!==mo) return;
     const day=d.getDate();
     if(!dayMap[day]) dayMap[day]={pnl:0,count:0};
-    const p=calcPnL(t);
-    dayMap[day].pnl+=p;dayMap[day].count++;
-    monthTrades.push({...t,_pnl:p});
+    dayMap[day].pnl+=calcPnL(t);dayMap[day].count++;
   });
-  let mPnl=0,mCount=0,mWins=0;
   for(let d=1;d<=daysInMonth;d++){
     const dd=dayMap[d]||{pnl:0,count:0};
-    mPnl+=dd.pnl;mCount+=dd.count;if(dd.pnl>0)mWins+=dd.count;
-    const isTd=new Date(yr,mo,d).toDateString()===today.toDateString();
+    const isTd=new Date(yr,mo,d).toDateString()===TODAY.toDateString();
     grid.innerHTML+=`<div class="cal-cell${isTd?' cal-today':''}">
       <div class="cal-date">${d}</div>
-      ${dd.count?`<div style="font-size:8px;color:var(--text3);font-family:var(--mono);">${dd.count}t</div>`:''}
       <div class="cal-pnl ${dd.pnl>0?'pos':dd.pnl<0?'neg':''}">${dd.pnl?formatINR(dd.pnl):''}</div>
     </div>`;
   }
-  document.getElementById('calMonthSummary').innerHTML=`
-    <div class="bench-row"><span>Net P&L</span><b class="${mPnl>=0?'pos':'neg'}">${formatINR(mPnl)}</b></div>
-    <div class="bench-row"><span>Trades Closed</span><b>${mCount}</b></div>
-    <div class="bench-row"><span>Win Rate</span><b>${mCount?Math.round(mWins/mCount*100):0}%</b></div>`;
 }
 
 function renderHeatmap(){
@@ -1367,82 +1309,64 @@ function renderHeatmap(){
   }
   const months = [];
   let cur = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
-  while(cur <= endDate){
-    months.push(new Date(cur));
-    cur.setMonth(cur.getMonth()+1);
-  }
+  while(cur <= endDate){ months.push(new Date(cur)); cur.setMonth(cur.getMonth()+1); }
   const DOW = ['M','T','W','T','F'];
   const grid = document.getElementById('heatmapGrid');
   grid.innerHTML = '';
-  let totalPnl=0, totalTrades=0, totalWins=0;
   months.forEach(mo=>{
     const yr = mo.getFullYear(), m = mo.getMonth();
     const daysInMo = new Date(yr, m+1, 0).getDate();
-    let moPnl=0, moTrades=0, moWins=0;
-    const dayToWeek = {}; 
-    for(let d=1;d<=daysInMo;d++){
-      const date = new Date(yr,m,d);
+    const weeks = [];
+    let curWeek = [];
+    for(let d=1; d<=daysInMo; d++){
+      const date = new Date(yr, m, d);
       const dow = date.getDay();
-      if(dow===0||dow===6) continue;
-      let weekIdx = 0;
-      for(let dd=1;dd<d;dd++){ if(new Date(yr,m,dd).getDay()===1) weekIdx++; }
-      dayToWeek[d]=weekIdx;
+      if(dow===0 || dow===6) continue;
+      if(dow===1 && curWeek.length > 0){ weeks.push(curWeek); curWeek = []; }
+      curWeek.push(d);
     }
-    const actualWeeks = Math.max(...Object.values(dayToWeek).concat([0]))+1;
-    const cells = Array.from({length:actualWeeks},()=>Array(5).fill(null));
-    for(let d=1;d<=daysInMo;d++){
-      const date=new Date(yr,m,d);
-      const dow=date.getDay();
-      if(dow===0||dow===6) continue;
-      const col=dow-1, row=dayToWeek[d];
-      cells[row][col]=d;
-    }
+    if(curWeek.length > 0) weeks.push(curWeek);
     const col = document.createElement('div');
     col.className = 'hm-month';
     const hdr = document.createElement('div');
     hdr.className = 'hm-month-header';
     hdr.textContent = mo.toLocaleString('default',{month:'short'}).toUpperCase() + ' ' + String(yr).slice(2);
     col.appendChild(hdr);
-    const dowRow = document.createElement('div');
-    dowRow.className = 'hm-day-row';
-    dowRow.innerHTML = `<div class="hm-dow-label"></div>` + DOW.map(d=>`<div class="hm-dow-label">${d}</div>`).join('');
-    col.appendChild(dowRow);
-    cells.forEach((row,wi)=>{
-      const wkRow = document.createElement('div');
-      wkRow.className = 'hm-day-row';
-      wkRow.innerHTML=`<div class="hm-dow-label" style="color:var(--text3);font-size:7px;">W${wi+1}</div>`;
-      row.forEach((day,ci)=>{
-        if(day===null){ wkRow.innerHTML+=`<div class="hm-cell hm-cell-empty"></div>`; return; }
-        const dateKey=`${yr}-${m+1}-${day}`;
-        const dayTrades=tradeDateMap[dateKey]||[];
-        const dayPnl=dayTrades.reduce((a,t)=>a+calcPnL(t),0);
-        const dayCount=dayTrades.length;
-        const dayWins=dayTrades.filter(t=>calcPnL(t)>0).length;
-        if(dayCount>0){ moPnl+=dayPnl; moTrades+=dayCount; moWins+=dayWins; }
-        const cls = dayCount===0 ? 'hm-cell-none' : cellClass(dayPnl);
-        const isToday=new Date(yr,m,day).toDateString()===TODAY.toDateString();
-        wkRow.innerHTML+=`<div class="hm-cell ${cls}" style="${isToday?'outline:2px solid var(--accent);outline-offset:-2px;':''}" onmouseenter="showHmTooltip(event,'${new Date(yr,m,day).toLocaleDateString('en-IN')}',${dayPnl},${dayCount},${dayCount?Math.round(dayWins/dayCount*100):0})" onmouseleave="hideHmTooltip()">${day}</div>`;
-      });
-      col.appendChild(wkRow);
+    const dayGrid = document.createElement('div');
+    dayGrid.className = 'hm-day-grid';
+    DOW.forEach((dName, dIdx)=>{
+      const row = document.createElement('div');
+      row.className = 'hm-day-row';
+      row.innerHTML = `<div class="hm-dow-label">${dName}</div>`;
+      for(let w=0; w<6; w++){
+        const week = weeks[w];
+        let dayNum = null;
+        if(week){
+          dayNum = week.find(dNum => {
+            const date = new Date(yr, m, dNum);
+            return (date.getDay()-1) === dIdx;
+          });
+        }
+        if(!dayNum){ row.innerHTML += `<div class="hm-cell hm-cell-empty"></div>`; }
+        else {
+          const key = `${yr}-${m+1}-${dayNum}`;
+          const ts = tradeDateMap[key] || [];
+          const pnl = ts.reduce((a,t)=>a+calcPnL(t),0);
+          const cls = ts.length===0 ? 'hm-cell-none' : cellClass(pnl);
+          row.innerHTML += `<div class="hm-cell ${cls}" onmouseenter="showHmTooltip(event,'${dayNum} ${mo.toLocaleString('default',{month:'short'})}',${pnl},${ts.length})" onmouseleave="hideHmTooltip()">${dayNum}</div>`;
+        }
+      }
+      dayGrid.appendChild(row);
     });
-    const footer = document.createElement('div');
-    footer.className = 'hm-month-footer';
-    footer.innerHTML=`<div class="hm-footer-pnl ${moPnl>=0?'pos':'neg'}">${moTrades?formatINR(moPnl):'—'}</div><div class="hm-footer-meta">${moTrades} trades · ${moTrades?Math.round(moWins/moTrades*100)+'% WR':'—'}</div>`;
-    col.appendChild(footer);
+    col.appendChild(dayGrid);
     grid.appendChild(col);
-    totalPnl+=moPnl; totalTrades+=moTrades; totalWins+=moWins;
   });
-  document.getElementById('heatmap-kpis').innerHTML=[
-    {label:'Period P&L', val:formatINR(totalPnl), sub:'all closed', cls:totalPnl>=0?'pos':'neg'},
-    {label:'Total Trades', val:totalTrades, sub:'exits', cls:''},
-    {label:'Win Rate', val:(totalTrades?Math.round(totalWins/totalTrades*100):0)+'%', sub:totalWins+'W / '+(totalTrades-totalWins)+'L', cls:''},
-  ].map(k=>`<div class="kpi"><div class="kpi-label">${k.label}</div><div class="kpi-val ${k.cls}">${k.val}</div><div class="kpi-sub">${k.sub}</div></div>`).join('');
 }
 
-function showHmTooltip(e, dateStr, pnl, count, wr){
+function showHmTooltip(e, dateStr, pnl, count){
   const tt = document.getElementById('hmTooltip');
   tt.style.display='block'; tt.style.left=(e.clientX+12)+'px'; tt.style.top=(e.clientY+12)+'px';
-  tt.innerHTML=`<b>${dateStr}</b><br><span class="${pnl>=0?'pos':'neg'}">${formatINR(pnl)}</span><br>${count} trades · ${wr}% WR`;
+  tt.innerHTML=`<b>${dateStr}</b><br><span class="${pnl>=0?'pos':'neg'}">${formatINR(pnl)}</span><br>${count} trades`;
 }
 function hideHmTooltip(){ document.getElementById('hmTooltip').style.display='none'; }
 
@@ -1463,7 +1387,7 @@ function renderHistory(){
     ? [...closed].reverse().map(t=>{
         const p=calcPnL(t),rr=calcRR(t),pct=calcPctMove(t),ep=calcExitPrice(t);
         const days=daysBetween(parseSheetDate(t['Entry Date']),parseSheetDate(t['Exit Date']));
-        return `<tr><td><b>${t.Symbol}</b></td><td>${t.Setup}</td><td>${t['Entry Date']}</td><td>${t['Exit Date']}</td><td>${days}d</td><td>₹${n(t.Entry).toFixed(2)}</td><td>₹${ep.toFixed(2)}</td><td>${n(t.QE)}</td><td class="${p>=0?'pos':'neg'}">${formatINR(p)}</td><td class="${pct>=0?'pos':'neg'}">${pct.toFixed(2)}%</td><td class="${rr>=2?'pos':'neu'}">${rr.toFixed(2)}x</td><td><span style="padding:2px 8px;border-radius:4px;font-size:9px;background:${p>0?'var(--green-dim)':'var(--red-dim)'};color:${p>0?'var(--green)':'var(--red)'};">${p>0?'WIN':'LOSS'}</span></td></tr>`;
+        return `<tr><td><b>${t.Symbol}</b></td><td>${t.Setup}</td><td>${t['Entry Date']}</td><td>${t['Exit Date']}</td><td>${days}d</td><td>₹${n(t.Entry).toFixed(2)}</td><td>₹${ep.toFixed(2)}</td><td>${n(t.QE)}</td><td class="${p>=0?'pos':'neg'}">${formatINR(p)}</td><td class="${pct>=0?'pos':'neg'}">${pct.toFixed(2)}%</td><td class="${rr>=2?'pos':'neu'}">${rr.toFixed(2)}x</td><td><span style="padding:2px 8px;border-radius:4px;background:${p>0?'var(--green-dim)':'var(--red-dim)'};color:${p>0?'var(--green)':'var(--red)'};">${p>0?'WIN':'LOSS'}</span></td></tr>`;
       }).join('')
     :'<tr><td colspan="12" style="text-align:center;padding:24px;">No trades match filters</td></tr>';
 }
@@ -1489,7 +1413,7 @@ function runBR(){const b=n(document.getElementById('brBuy').value),s=n(document.
 function runBE(){const e=n(document.getElementById('beEntry').value),q=n(document.getElementById('beQty').value),t=n(document.getElementById('beBrok').value)+n(document.getElementById('beTax').value);document.getElementById('beResult').innerHTML=`<div style="font-weight:700;color:var(--accent);">BE Price: ₹${(e+t/q).toFixed(2)}</div>`;}
 function runDD(){const dd=n(document.getElementById('ddPct').value),rec=dd>0?((100/(100-dd))-1)*100:0;document.getElementById('ddResult').innerHTML=`<div style="font-weight:700;color:var(--accent);">Recovery: ${rec.toFixed(1)}%</div>`;}
 
-const CHECKLIST=["Is my thesis clearly defined?","Key technical level identified?","Stop loss logical?","R:R at least 1:2?","Position sized correctly?","Market trend in favor?","Major events in next 5 days?","Entering without FOMO?","Is this in my playbook?","Reviewed last 5 trades?"];
+const CHECKLIST=["thesis defined?","technical levels?","stop loss?","R:R 1:2?","position size?","trend?","events?","no FOMO?","playbook?","last 5 trades?"];
 function openChecklistModal(){
   document.getElementById('checklistModal').classList.add('open');
   const c=document.getElementById('checklistItems');
@@ -1516,7 +1440,7 @@ function deleteReview(id){weeklyReviews=weeklyReviews.filter(r=>r.id!==id);local
 function renderReviews(){
   const c=document.getElementById('reviewHistory');
   if(!weeklyReviews.length){c.innerHTML='<div style="padding:24px;text-align:center;">No reviews yet.</div>';return;}
-  c.innerHTML=weeklyReviews.map(r=>`<div class="review-entry"><div class="review-entry-date"><b>${r.week}</b> [${r.mood}] <button onclick="deleteReview(${r.id})" style="float:right;">✕</button></div><div class="review-entry-content"><div>Lesson: ${r.lesson}</div></div></div>`).join('');
+  c.innerHTML=weeklyReviews.map(r=>`<div class="review-entry"><div class="review-entry-date"><b>${r.week}</b> [${r.mood}] <button onclick="deleteReview(${r.id})">✕</button></div><div>Lesson: ${r.lesson}</div></div>`).join('');
 }
 
 window.onload=function(){renderReviews();loadData();};
