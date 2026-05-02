@@ -129,7 +129,6 @@ select:focus,input:focus{border-color:var(--accent);}
 .review-entry-date{font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:8px;}
 .review-entry-content{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:11px;font-family:var(--mono);}
 
-/* ── DATE FILTER DROPDOWN ── */
 .date-filter-wrap{position:relative;display:inline-block;}
 .date-filter-btn{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:var(--r);cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:500;border:1px solid var(--border2);background:var(--bg3);color:var(--text);transition:all .15s;white-space:nowrap;}
 .date-filter-btn:hover{border-color:var(--accent);color:var(--accent);}
@@ -147,7 +146,6 @@ select:focus,input:focus{border-color:var(--accent);}
 .dfd-apply{width:100%;padding:7px;background:var(--accent);color:#fff;border:none;border-radius:var(--r);cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:700;margin-top:4px;}
 .dfd-apply:hover{background:var(--accent2);}
 
-/* ── HEATMAP CALENDAR ── */
 .heatmap-wrap{overflow-x:auto;padding-bottom:8px;}
 .heatmap-grid{display:flex;gap:0;min-width:max-content;}
 .hm-month{display:flex;flex-direction:column;min-width:130px;border-right:1px solid var(--border);}
@@ -171,10 +169,6 @@ select:focus,input:focus{border-color:var(--accent);}
 .hm-legend-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;color:var(--text3);}
 .hm-legend-dot{width:12px;height:12px;border-radius:2px;}
 .hm-tooltip{position:fixed;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:8px 12px;font-family:var(--mono);font-size:10px;pointer-events:none;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.4);}
-
-/* ── MFE / ETD ANALYSIS ── */
-.excursion-stat-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px;}
-.excursion-stat-row:last-child{border-bottom:none;}
 
 ::-webkit-scrollbar{width:5px;height:5px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
@@ -215,7 +209,6 @@ select:focus,input:focus{border-color:var(--accent);}
   <div class="tab active" onclick="switchTab('overview')">OVERVIEW</div>
   <div class="tab" onclick="switchTab('analytics')">DEEP ANALYTICS</div>
   <div class="tab" onclick="switchTab('calendar')">P&L CALENDAR</div>
-  <div class="tab" onclick="switchTab('heatmap')">HEATMAP CALENDAR</div>
   <div class="tab" onclick="switchTab('history')">TRADE HISTORY</div>
   <div class="tab" onclick="switchTab('journal')">WEEKLY JOURNAL</div>
 </div>
@@ -223,7 +216,42 @@ select:focus,input:focus{border-color:var(--accent);}
 <!-- ═══════════════════════════════════════════════════════ OVERVIEW TAB -->
 <div class="tab-panel active" id="tab-overview">
 
-  <!-- Shared date filter for overview -->
+  <div class="slabel">🛰 Active Portfolio</div>
+  <div class="kpi-row" id="kpi-portfolio"></div>
+
+  <div class="table-wrap">
+    <div class="table-toolbar">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;">Radar // Open Positions</span>
+      <div id="livePriceBadge" class="live-badge live" style="margin-left:6px;">
+        <div class="live-dot"></div><span id="livePriceStatus">Powered by GoogleFinance</span>
+      </div>
+    </div>
+    <table>
+      <thead><tr>
+        <th>SYMBOL</th><th>SETUP</th><th>ENTRY DATE</th>
+        <th>ENTRY</th><th>SL</th><th>DIST TO SL</th>
+        <th>CMP (LTP)</th><th>DAY CHG</th>
+        <th>QTY</th><th>INVESTED</th><th>MTM P&L</th><th>% MOVE</th>
+      </tr></thead>
+      <tbody id="openTradeLog"></tbody>
+    </table>
+  </div>
+
+  <div class="slabel">🔥 Recent Streak</div>
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-title" style="justify-content:space-between;">
+      <span>LAST N TRADES</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-family:var(--mono);font-size:10px;color:var(--text3);">Show last</span>
+        <input type="number" id="streakN" value="20" min="5" max="100" style="width:60px;padding:4px 8px;font-size:11px;" oninput="renderStreak(getClosed())"/>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--text3);">trades</span>
+      </div>
+    </div>
+    <div class="streak-box" id="streakDots"></div>
+    <div style="margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--text2);" id="streakSummary"></div>
+  </div>
+
+  <!-- MOVED: Overview filter relocated below streak -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
     <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;">Overview Filter</div>
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
@@ -253,41 +281,47 @@ select:focus,input:focus{border-color:var(--accent);}
     </div>
   </div>
 
-  <div class="slabel">🛰 Active Portfolio</div>
-  <div class="kpi-row" id="kpi-portfolio"></div>
-
-  <div class="table-wrap">
-    <div class="table-toolbar">
-      <span style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;">Radar // Open Positions</span>
-      <div id="livePriceBadge" class="live-badge live" style="margin-left:6px;">
-        <div class="live-dot"></div><span id="livePriceStatus">Powered by GoogleFinance</span>
+  <!-- MOVED: Heatmap relocated to Overview -->
+  <div class="slabel">🗓 Heatmap Calendar</div>
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+    <div class="date-filter-wrap" id="heatmapFilterWrap">
+      <div class="date-filter-btn" onclick="toggleDateFilter('heatmap')">
+        <span>📅</span><span id="heatmapFilterLabel">Last 12 Months</span><span class="arrow" id="heatmapFilterArrow">▼</span>
+      </div>
+      <div class="date-filter-dropdown" id="heatmapFilterDropdown">
+        <div class="dfd-option" onclick="applyDatePreset('heatmap','all',this)">All time</div>
+        <div class="dfd-option active" onclick="applyDatePreset('heatmap','12mo',this)">Last 12 months</div>
+        <div class="dfd-option" onclick="applyDatePreset('heatmap','6mo',this)">Last 6 months</div>
+        <div class="dfd-option" onclick="applyDatePreset('heatmap','3mo',this)">Last 3 months</div>
+        <div class="dfd-option" onclick="applyDatePreset('heatmap','ytd',this)">This year (YTD)</div>
+        <div class="dfd-option" onclick="applyDatePreset('heatmap','fy2526',this)">FY 2025-26</div>
+        <div class="dfd-option" onclick="applyDatePreset('heatmap','fy2627',this)">FY 2026-27</div>
+        <div class="dfd-divider"></div>
+        <div class="dfd-custom">
+          <div class="dfd-custom-label">Custom range</div>
+          <div class="dfd-custom-row">
+            <input type="date" id="heatmapFrom"/>
+            <span>–</span>
+            <input type="date" id="heatmapTo"/>
+          </div>
+          <button class="dfd-apply" onclick="applyDateCustom('heatmap')">Apply</button>
+        </div>
       </div>
     </div>
-    <table>
-      <thead><tr>
-        <th>SYMBOL</th><th>SETUP</th><th>ENTRY DATE</th>
-        <th>ENTRY</th><th>SL</th><th>DIST TO SL</th>
-        <th>CMP (LTP)</th><th>DAY CHG</th>
-        <th>QTY</th><th>INVESTED</th><th>MTM P&L</th><th>% MOVE</th>
-      </tr></thead>
-      <tbody id="openTradeLog"></tbody>
-    </table>
-  </div>
-
-  <!-- STREAK SECTION — now above performance KPIs -->
-  <div class="slabel">🔥 Recent Streak</div>
-  <div class="card" style="margin-bottom:20px;">
-    <div class="card-title" style="justify-content:space-between;">
-      <span>LAST N TRADES</span>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-family:var(--mono);font-size:10px;color:var(--text3);">Show last</span>
-        <input type="number" id="streakN" value="20" min="5" max="100" style="width:60px;padding:4px 8px;font-size:11px;" oninput="renderStreak(getClosed())"/>
-        <span style="font-family:var(--mono);font-size:10px;color:var(--text3);">trades</span>
-      </div>
+    <div class="hm-legend">
+      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(16,185,129,0.85);"></div>Large gain</div>
+      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(16,185,129,0.35);"></div>Small gain</div>
+      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(234,179,8,0.35);"></div>Breakeven</div>
+      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(244,63,94,0.25);"></div>Small loss</div>
+      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(244,63,94,0.75);"></div>Large loss</div>
     </div>
-    <div class="streak-box" id="streakDots"></div>
-    <div style="margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--text2);" id="streakSummary"></div>
   </div>
+  <div class="card" style="padding:16px;margin-bottom:20px;">
+    <div class="heatmap-wrap">
+      <div class="heatmap-grid" id="heatmapGrid"></div>
+    </div>
+  </div>
+  <div class="kpi-row" id="heatmap-kpis" style="margin-bottom: 28px;"></div>
 
   <div class="slabel">📊 Performance Overview</div>
   <div class="kpi-row" id="kpi-performance"></div>
@@ -307,7 +341,6 @@ select:focus,input:focus{border-color:var(--accent);}
 <!-- ═══════════════════════════════════════════════════════ ANALYTICS TAB -->
 <div class="tab-panel" id="tab-analytics">
 
-  <!-- Date filter for analytics tab -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
     <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;">Analytics Filter</div>
     <div class="date-filter-wrap" id="analyticsFilterWrap">
@@ -351,10 +384,9 @@ select:focus,input:focus{border-color:var(--accent);}
     <div id="rDistBars" style="padding-top:4px;"></div>
   </div>
 
-  <!-- ── MAE / MFE / ETD ANALYSIS ── -->
   <div class="slabel">📉 Trade Excursion Analysis (MAE / MFE / ETD)</div>
 
-  <!-- MAE -->
+  <!-- MAE SECTION (Logic Fixed) -->
   <div style="margin-bottom:8px;font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;">Max Adverse Excursion (MAE)</div>
   <div class="grid-2" style="margin-bottom:20px;">
     <div class="card">
@@ -367,7 +399,6 @@ select:focus,input:focus{border-color:var(--accent);}
     </div>
   </div>
 
-  <!-- MFE -->
   <div style="margin-bottom:8px;font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;">Max Favourable Excursion (MFE)</div>
   <div class="grid-2" style="margin-bottom:20px;">
     <div class="card">
@@ -380,7 +411,6 @@ select:focus,input:focus{border-color:var(--accent);}
     </div>
   </div>
 
-  <!-- ETD -->
   <div style="margin-bottom:8px;font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;">End-Trade Drawdown (ETD) — How much did you give back from MFE?</div>
   <div class="grid-2" style="margin-bottom:20px;">
     <div class="card">
@@ -457,55 +487,6 @@ select:focus,input:focus{border-color:var(--accent);}
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════ HEATMAP CALENDAR TAB -->
-<div class="tab-panel" id="tab-heatmap">
-  <div class="slabel">🗓 Heatmap Calendar</div>
-
-  <!-- Heatmap date filter -->
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
-    <div class="date-filter-wrap" id="heatmapFilterWrap">
-      <div class="date-filter-btn" onclick="toggleDateFilter('heatmap')">
-        <span>📅</span><span id="heatmapFilterLabel">Last 12 Months</span><span class="arrow" id="heatmapFilterArrow">▼</span>
-      </div>
-      <div class="date-filter-dropdown" id="heatmapFilterDropdown">
-        <div class="dfd-option" onclick="applyDatePreset('heatmap','all',this)">All time</div>
-        <div class="dfd-option active" onclick="applyDatePreset('heatmap','12mo',this)">Last 12 months</div>
-        <div class="dfd-option" onclick="applyDatePreset('heatmap','6mo',this)">Last 6 months</div>
-        <div class="dfd-option" onclick="applyDatePreset('heatmap','3mo',this)">Last 3 months</div>
-        <div class="dfd-option" onclick="applyDatePreset('heatmap','ytd',this)">This year (YTD)</div>
-        <div class="dfd-option" onclick="applyDatePreset('heatmap','fy2526',this)">FY 2025-26</div>
-        <div class="dfd-option" onclick="applyDatePreset('heatmap','fy2627',this)">FY 2026-27</div>
-        <div class="dfd-divider"></div>
-        <div class="dfd-custom">
-          <div class="dfd-custom-label">Custom range</div>
-          <div class="dfd-custom-row">
-            <input type="date" id="heatmapFrom"/>
-            <span>–</span>
-            <input type="date" id="heatmapTo"/>
-          </div>
-          <button class="dfd-apply" onclick="applyDateCustom('heatmap')">Apply</button>
-        </div>
-      </div>
-    </div>
-    <div class="hm-legend">
-      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(16,185,129,0.85);"></div>Large gain</div>
-      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(16,185,129,0.35);"></div>Small gain</div>
-      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(234,179,8,0.35);"></div>Breakeven</div>
-      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(244,63,94,0.25);"></div>Small loss</div>
-      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(244,63,94,0.75);"></div>Large loss</div>
-    </div>
-  </div>
-
-  <div class="card" style="padding:16px;margin-bottom:20px;">
-    <div class="heatmap-wrap">
-      <div class="heatmap-grid" id="heatmapGrid"></div>
-    </div>
-  </div>
-
-  <!-- Heatmap summary KPIs -->
-  <div class="kpi-row" id="heatmap-kpis"></div>
-</div>
-
 <!-- ═══════════════════════════════════════════════════════ HISTORY TAB -->
 <div class="tab-panel" id="tab-history">
   <div class="table-wrap">
@@ -573,7 +554,6 @@ select:focus,input:focus{border-color:var(--accent);}
 
 </div><!-- /app -->
 
-<!-- MODALS (unchanged) -->
 <div class="modal-overlay" id="calcModal">
   <div class="modal" style="max-width:1000px;">
     <button class="modal-close" onclick="closeCalcModal()">×</button>
@@ -636,24 +616,20 @@ select:focus,input:focus{border-color:var(--accent);}
   </div>
 </div>
 
-<!-- Heatmap tooltip -->
 <div class="hm-tooltip" id="hmTooltip"></div>
 
 <script>
-// ─── STATE ─────────────────────────────────────────────
 let allTrades    = [];
 let charts       = {};
 let currentCalDate = new Date(2026, 3, 1);
 let weeklyReviews  = JSON.parse(localStorage.getItem('td_reviews') || '[]');
 
-// Date filter state per scope
 const dateFilters = {
   overview:  { type: 'all', from: null, to: null },
   analytics: { type: 'all', from: null, to: null },
   heatmap:   { type: '12mo', from: null, to: null },
 };
 
-// ─── UTILS ─────────────────────────────────────────────
 const n = v => parseFloat(String(v||'').replace(/[,₹\s%]/g,''))||0;
 
 function formatINR(v){
@@ -710,14 +686,13 @@ function daysBetween(a,b){return(!a||!b)?0:Math.round(Math.abs(b-a)/86400000);}
 function toggleTheme(){const b=document.body;b.setAttribute('data-theme',b.getAttribute('data-theme')==='dark'?'light':'dark');}
 
 function switchTab(id){
-  const ids=['overview','analytics','calendar','heatmap','history','journal'];
+  const ids=['overview','analytics','calendar','history','journal'];
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',ids[i]===id));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+id));
-  if(id==='heatmap') renderHeatmap();
+  if(id==='overview') renderHeatmap();
 }
 
-// ─── DATE FILTER ENGINE ────────────────────────────────
-const TODAY = new Date(2026,3,27); // fixed reference date
+const TODAY = new Date(2026,3,27); 
 
 function getDateRange(scope){
   const f = dateFilters[scope];
@@ -778,7 +753,6 @@ const PRESET_LABELS = {
 function toggleDateFilter(scope){
   const dd=document.getElementById(scope+'FilterDropdown');
   const isOpen=dd.classList.contains('open');
-  // close all
   document.querySelectorAll('.date-filter-dropdown').forEach(d=>d.classList.remove('open'));
   document.querySelectorAll('.arrow').forEach(a=>a.style.transform='');
   if(!isOpen){
@@ -792,7 +766,6 @@ function applyDatePreset(scope, preset, el){
   dateFilters[scope].type = preset;
   dateFilters[scope].from = null;
   dateFilters[scope].to = null;
-  // update active class
   el.closest('.date-filter-dropdown').querySelectorAll('.dfd-option').forEach(o=>o.classList.remove('active'));
   el.classList.add('active');
   const labelEl = document.getElementById(scope+'FilterLabel');
@@ -821,7 +794,8 @@ function onFilterChange(scope){
     renderPerformanceKPIs();
     renderEquity(filterClosedByScope('overview'));
     renderHOF(filterClosedByScope('overview'));
-    renderStreak(getClosed()); // streak always uses all closed
+    renderStreak(getClosed()); 
+    renderHeatmap();
   }
   if(scope==='analytics'){
     const c=filterClosedByScope('analytics');
@@ -836,7 +810,6 @@ function onFilterChange(scope){
   }
 }
 
-// close dropdowns on outside click
 document.addEventListener('click', e=>{
   if(!e.target.closest('.date-filter-wrap')){
     document.querySelectorAll('.date-filter-dropdown').forEach(d=>d.classList.remove('open'));
@@ -844,7 +817,6 @@ document.addEventListener('click', e=>{
   }
 });
 
-// ─── DATA LOAD ─────────────────────────────────────────
 function loadData(){
   document.getElementById('lastUpdated').textContent='Refreshing...';
   fetch(document.getElementById('csvUrl').value)
@@ -873,17 +845,15 @@ function populateFilters(){
   el.value=cur;
 }
 
-// ─── MAIN RENDER ───────────────────────────────────────
 function renderAll(){
   updatePortfolioKPIs();
   renderOpenPositions();
-  // Overview uses its filter
   const oc = filterClosedByScope('overview');
   renderPerformanceKPIs();
   renderStreak(getClosed());
+  renderHeatmap(); 
   renderEquity(oc);
   renderHOF(oc);
-  // Analytics uses its filter
   const ac = filterClosedByScope('analytics');
   renderInsightTable();
   renderRMultiple(ac);
@@ -895,7 +865,6 @@ function renderAll(){
   renderStreakAlert(getClosed());
 }
 
-// ─── PORTFOLIO KPIs (unchanged) ────────────────────────
 function updatePortfolioKPIs(){
   const open=getOpen();
   const deployed=open.reduce((a,t)=>a+n(t.Entry)*n(t.QE),0);
@@ -911,12 +880,12 @@ function updatePortfolioKPIs(){
   }).length;
 
   document.getElementById('kpi-portfolio').innerHTML=[
-    {label:'Open Positions',  val:open.length,                               sub:'active trades',   cls:''},
-    {label:'% Invested',      val:pctInvested.toFixed(1)+'%',                sub:'of capital used', cls:pctInvested>80?'neg':pctInvested>50?'neu':'pos'},
-    {label:'Capital Deployed',val:'₹'+(deployed/1e5).toFixed(2)+'L',         sub:'entry × qty',      cls:''},
+    {label:'Open Positions',  val:open.length,                                sub:'active trades',    cls:''},
+    {label:'% Invested',      val:pctInvested.toFixed(1)+'%',                 sub:'of capital used', cls:pctInvested>80?'neg':pctInvested>50?'neu':'pos'},
+    {label:'Capital Deployed',val:'₹'+(deployed/1e5).toFixed(2)+'L',          sub:'entry × qty',      cls:''},
     {label:'MTM P&L (Sheet)', val:formatINR(mtm),                            sub:'unrealised',      cls:mtm>=0?'pos':'neg'},
     {label:'Max SL Risk',      val:formatINR(maxRisk),                         sub:'if all SLs hit',  cls:'neg'},
-    {label:'SL Breaches',      val:slBreaches,                                sub:'positions at risk',cls:slBreaches>0?'neg':'pos'},
+    {label:'SL Breaches',      val:slBreaches,                                 sub:'positions at risk',cls:slBreaches>0?'neg':'pos'},
   ].map(k=>`<div class="kpi">
     <div class="kpi-label">${k.label}</div>
     <div class="kpi-val ${k.cls}">${k.val}</div>
@@ -924,7 +893,6 @@ function updatePortfolioKPIs(){
   </div>`).join('');
 }
 
-// ─── OPEN POSITIONS TABLE (unchanged) ──────────────────
 function renderOpenPositions(){
   const open=getOpen();
   const tbody=document.getElementById('openTradeLog');
@@ -965,7 +933,6 @@ function renderOpenPositions(){
   }).join('');
 }
 
-// ─── PERFORMANCE KPIs — uses overview filter ──────────
 function renderPerformanceKPIs(){
   const closed = filterClosedByScope('overview');
   const pnls=closed.map(calcPnL);
@@ -986,7 +953,7 @@ function renderPerformanceKPIs(){
   pnls.forEach(p=>{run+=p;if(run>peak)peak=run;const dd=peak-run;if(dd>maxDD)maxDD=dd;});
 
   document.getElementById('kpi-performance').innerHTML=[
-    {label:'Total P&L',     val:formatINR(totalPnl),        sub2:'',                              cls:totalPnl>=0?'pos':'neg'},
+    {label:'Total P&L',     val:formatINR(totalPnl),        sub2:'',                            cls:totalPnl>=0?'pos':'neg'},
     {label:'Win Rate',      val:wr.toFixed(1)+'%',           sub2:`${wins.length}W / ${losses.length}L`, cls:wr>=50?'pos':'neg'},
     {label:'Profit Factor', val:pf.toFixed(2)+'x',           sub2:'gross win ÷ gross loss',        cls:pf>=1.5?'pos':pf>=1?'neu':'neg'},
     {label:'Avg Win',       val:'+'+avgWPct.toFixed(2)+'%',  sub2:formatINR(avgWAbs),              cls:'pos'},
@@ -1001,7 +968,6 @@ function renderPerformanceKPIs(){
   </div>`).join('');
 }
 
-// ─── STREAK — configurable N ──────────────────────────
 function renderStreak(closed){
   const N = parseInt(document.getElementById('streakN').value)||20;
   document.getElementById('streakDots').innerHTML=closed.slice(-N).map(t=>{
@@ -1036,7 +1002,6 @@ function renderStreakAlert(closed){
   } else banner.classList.remove('show');
 }
 
-// ─── EQUITY CURVE — uses overview-filtered closed ──────
 function renderEquity(closed){
   const ctx=document.getElementById('equityChart').getContext('2d');
   if(charts.equity) charts.equity.destroy();
@@ -1068,7 +1033,6 @@ function renderEquity(closed){
   });
 }
 
-// ─── HOF — uses overview-filtered closed ──────────────
 function renderHOF(closed){
   const s=[...closed].sort((a,b)=>calcPnL(b)-calcPnL(a));
   const w=s.slice(0,5),l=s.slice(-5).reverse();
@@ -1080,7 +1044,6 @@ function renderHOF(closed){
     l.map((t,i)=>`<div class="hof-item" style="border-left-color:var(--red)"><span><span class="hof-rank">#${i+1}</span><b>${t.Symbol}</b></span><span class="neg">${formatINR(calcPnL(t))}</span></div>`).join('');
 }
 
-// ─── INSIGHT TABLE — uses analytics filter ─────────────
 function renderInsightTable(){
   const gb=document.getElementById('insightGroupBy').value;
   const closed=filterClosedByScope('analytics');
@@ -1118,7 +1081,6 @@ function renderInsightTable(){
     }).join('');
 }
 
-// ─── R-MULTIPLE — uses passed-in closed ───────────────
 function renderRMultiple(closed){
   const rVals=closed.map(t=>calcRR(t));
   const labels=['≤-2R','-2 to -1R','-1 to 0R','0 to 1R','1 to 2R','2 to 3R','3 to 4R','4R+'];
@@ -1166,15 +1128,15 @@ function renderRMultiple(closed){
   }).join('');
 }
 
-// ─── MAE / MFE / ETD ──────────────────────────────────
 function renderMAEMFEETD(closed){
   renderMAE(closed);
   renderMFE(closed);
   renderETD(closed);
 }
 
+// FIX: Corrected MAE filtering to include negative percentage values from spreadsheet
 function renderMAE(closed){
-  const withMAE=closed.filter(t=>n(t.MAE)>0);
+  const withMAE=closed.filter(t=>n(t.MAE)!==0); 
   const ctx=document.getElementById('maeChart').getContext('2d');
   if(charts.mae) charts.mae.destroy();
   if(!withMAE.length){
@@ -1186,30 +1148,31 @@ function renderMAE(closed){
   charts.mae=new Chart(ctx,{
     type:'scatter',
     data:{datasets:[
-      {label:'Wins',data:ws.map(t=>({x:n(t.MAE),y:calcPctMove(t),sym:t.Symbol})),backgroundColor:'rgba(16,185,129,0.6)',pointRadius:5},
-      {label:'Losses',data:ls.map(t=>({x:n(t.MAE),y:calcPctMove(t),sym:t.Symbol})),backgroundColor:'rgba(244,63,94,0.6)',pointRadius:5},
+      // standardizing X to absolute drawdown for visualization
+      {label:'Wins',data:ws.map(t=>({x:Math.abs(n(t.MAE)),y:calcPctMove(t),sym:t.Symbol})),backgroundColor:'rgba(16,185,129,0.6)',pointRadius:5},
+      {label:'Losses',data:ls.map(t=>({x:Math.abs(n(t.MAE)),y:calcPctMove(t),sym:t.Symbol})),backgroundColor:'rgba(244,63,94,0.6)',pointRadius:5},
     ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{labels:{font:{family:'JetBrains Mono',size:9},color:'#94a3b8',boxWidth:10}},
-               tooltip:{callbacks:{label:c=>`${c.raw.sym||''} | MAE: ${c.raw.x}% | Exit: ${c.raw.y?.toFixed(2)}%`}}},
-      scales:{x:{title:{display:true,text:'MAE %',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}},
+                tooltip:{callbacks:{label:c=>`${c.raw.sym||''} | Drawdown: ${c.raw.x}% | Exit: ${c.raw.y?.toFixed(2)}%`}}},
+      scales:{x:{title:{display:true,text:'Max Drawdown (MAE %)',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}},
               y:{title:{display:true,text:'Exit % Move',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}}}}
   });
-  const aw=ws.reduce((a,t)=>a+n(t.MAE),0)/(ws.length||1);
-  const al=ls.reduce((a,t)=>a+n(t.MAE),0)/(ls.length||1);
-  const maxMAE=Math.max(...withMAE.map(t=>n(t.MAE)));
+  const aw=Math.abs(ws.reduce((a,t)=>a+n(t.MAE),0))/(ws.length||1);
+  const al=Math.abs(ls.reduce((a,t)=>a+n(t.MAE),0))/(ls.length||1);
+  const maxMAE=Math.max(...withMAE.map(t=>Math.abs(n(t.MAE))));
   const SL_PCT = closed.reduce((a,t)=>{
     const e=n(t.Entry),sl=n(t.SL);
     return e&&sl ? a+Math.abs((sl-e)/e*100) : a;
   },0)/(closed.length||1);
   document.getElementById('maeSummary').innerHTML=`
     <div class="bench-row"><span>Trades with MAE data</span><b>${withMAE.length}</b></div>
-    <div class="bench-row"><span>Avg MAE — Winners</span><b class="neg">${aw.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Avg MAE — Losers</span><b class="neg">${al.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Max MAE ever</span><b class="neg">${maxMAE.toFixed(2)}%</b></div>
+    <div class="bench-row"><span>Avg Drawdown — Winners</span><b class="neg">${aw.toFixed(2)}%</b></div>
+    <div class="bench-row"><span>Avg Drawdown — Losers</span><b class="neg">${al.toFixed(2)}%</b></div>
+    <div class="bench-row"><span>Max Drawdown ever</span><b class="neg">${maxMAE.toFixed(2)}%</b></div>
     <div class="bench-row"><span>Avg SL distance</span><b style="color:var(--accent)">${SL_PCT.toFixed(2)}%</b></div>
     <div style="margin-top:10px;padding:10px;background:var(--bg3);border-radius:var(--r);font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7;">
-      💡 <b style="color:var(--text2)">MAE Insight:</b> If avg MAE on winners (${aw.toFixed(1)}%) is much lower than avg SL (${SL_PCT.toFixed(1)}%), your stops may be too wide.<br>Tighter stops = better capital efficiency.
+      💡 <b style="color:var(--text2)">MAE Insight:</b> If avg MAE on winners (${aw.toFixed(1)}%) is much lower than avg SL (${SL_PCT.toFixed(1)}%), your stops may be too wide.
     </div>`;
 }
 
@@ -1218,7 +1181,7 @@ function renderMFE(closed){
   const ctx=document.getElementById('mfeChart').getContext('2d');
   if(charts.mfe) charts.mfe.destroy();
   if(!withMFE.length){
-    document.getElementById('mfeSummary').innerHTML='<div style="color:var(--text3);font-size:11px;line-height:1.8;">Add a <b style="color:var(--accent)">MFE</b> column to your Google Sheet.<br><br>MFE = max % favourable move from entry before the trade ended.</div>';
+    document.getElementById('mfeSummary').innerHTML='<div style="color:var(--text3);font-size:11px;line-height:1.8;">Add a <b style="color:var(--accent)">MFE</b> column to your Google Sheet.</div>';
     charts.mfe=new Chart(ctx,{type:'scatter',data:{datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
     return;
   }
@@ -1235,30 +1198,24 @@ function renderMFE(closed){
     ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{labels:{font:{family:'JetBrains Mono',size:9},color:'#94a3b8',boxWidth:10}},
-               tooltip:{callbacks:{label:c=>`${c.raw.sym||''} | MFE: ${c.raw.x}% | Exit: ${c.raw.y?.toFixed(2)}%`}}},
+                tooltip:{callbacks:{label:c=>`${c.raw.sym||''} | MFE: ${c.raw.x}% | Exit: ${c.raw.y?.toFixed(2)}%`}}},
       scales:{
-        x:{title:{display:true,text:'MFE % (Max Favourable)',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}},
-        y:{title:{display:true,text:'Exit % Move',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}}
+        x:{title:{display:true,text:'MFE %',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{title:{display:true,text:'Exit %',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}}
       }
     }
   });
 
-  // Capture efficiency: how much of MFE did we actually keep?
   const winCapture = ws.filter(t=>n(t.MFE)>0).map(t=>calcPctMove(t)/n(t.MFE)*100);
   const avgCapture = winCapture.length ? winCapture.reduce((a,b)=>a+b,0)/winCapture.length : 0;
-  const lossWithMFE = ls.filter(t=>n(t.MFE)>0).length;
-  const pctLossHadMFE = withMFE.length ? (lossWithMFE/withMFE.length*100).toFixed(1) : 0;
+  const pctLossHadMFE = withMFE.length ? (ls.filter(t=>n(t.MFE)>0).length/withMFE.length*100).toFixed(1) : 0;
 
   document.getElementById('mfeSummary').innerHTML=`
     <div class="bench-row"><span>Trades with MFE data</span><b>${withMFE.length}</b></div>
     <div class="bench-row"><span>Avg MFE — Winners</span><b class="pos">+${avgMFEWin.toFixed(2)}%</b></div>
     <div class="bench-row"><span>Avg MFE — Losers</span><b class="pos">+${avgMFELoss.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Max MFE ever</span><b class="pos">+${maxMFE.toFixed(2)}%</b></div>
     <div class="bench-row"><span>Avg capture rate (wins)</span><b style="color:var(--accent)">${avgCapture.toFixed(1)}%</b></div>
-    <div class="bench-row"><span>% Losses that had MFE</span><b class="neg">${pctLossHadMFE}%</b></div>
-    <div style="margin-top:10px;padding:10px;background:var(--bg3);border-radius:var(--r);font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7;">
-      💡 <b style="color:var(--text2)">MFE Insight:</b> Capture rate of ${avgCapture.toFixed(1)}% means you exit at ~${avgCapture.toFixed(0)}% of the best possible price. ${parseFloat(pctLossHadMFE)>40?'Many losses had positive MFE — consider tighter trailing stops.':avgCapture<60?'Low capture — exits may be too early or trade management needs review.':'Solid exit quality.'}
-    </div>`;
+    <div class="bench-row"><span>% Losses with MFE</span><b class="neg">${pctLossHadMFE}%</b></div>`;
 }
 
 function renderETD(closed){
@@ -1266,7 +1223,7 @@ function renderETD(closed){
   const ctx=document.getElementById('etdChart').getContext('2d');
   if(charts.etd) charts.etd.destroy();
   if(!withETD.length){
-    document.getElementById('etdSummary').innerHTML='<div style="color:var(--text3);font-size:11px;line-height:1.8;">Add <b style="color:var(--accent)">ETD</b> and <b style="color:var(--accent)">MFE</b> columns.<br><br>ETD = how much % did you give back from the MFE peak before exiting.</div>';
+    document.getElementById('etdSummary').innerHTML='<div style="color:var(--text3);font-size:11px;line-height:1.8;">Add <b style="color:var(--accent)">ETD</b> and <b style="color:var(--accent)">MFE</b> columns.</div>';
     charts.etd=new Chart(ctx,{type:'scatter',data:{datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
     return;
   }
@@ -1279,33 +1236,24 @@ function renderETD(closed){
     ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{labels:{font:{family:'JetBrains Mono',size:9},color:'#94a3b8',boxWidth:10}},
-               tooltip:{callbacks:{label:c=>`${c.raw.sym||''} | MFE: ${c.raw.x}% | ETD: ${c.raw.y}%`}}},
+                tooltip:{callbacks:{label:c=>`${c.raw.sym||''} | MFE: ${c.raw.x}% | ETD: ${c.raw.y}%`}}},
       scales:{
-        x:{title:{display:true,text:'MFE % (How far it ran)',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}},
-        y:{title:{display:true,text:'ETD % (Gave back)',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}}
+        x:{title:{display:true,text:'MFE %',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{title:{display:true,text:'ETD %',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}}
       }
     }
   });
 
   const avgETDWin=ws.reduce((a,t)=>a+n(t.ETD),0)/(ws.length||1);
-  const avgETDLoss=ls.reduce((a,t)=>a+n(t.ETD),0)/(ls.length||1);
-  const maxETD=Math.max(...withETD.map(t=>n(t.ETD)));
-  // ETD as % of MFE — exit quality ratio
   const exitQuality=withETD.filter(t=>n(t.MFE)>0).map(t=>(1-(n(t.ETD)/n(t.MFE)))*100);
   const avgExitQ=exitQuality.length?exitQuality.reduce((a,b)=>a+b,0)/exitQuality.length:0;
 
   document.getElementById('etdSummary').innerHTML=`
     <div class="bench-row"><span>Trades with ETD data</span><b>${withETD.length}</b></div>
     <div class="bench-row"><span>Avg ETD — Winners</span><b class="neg">${avgETDWin.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Avg ETD — Losers</span><b class="neg">${avgETDLoss.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Max ETD ever</span><b class="neg">${maxETD.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Avg exit quality score</span><b style="color:${avgExitQ>=70?'var(--green)':avgExitQ>=50?'var(--accent)':'var(--red)'};">${avgExitQ.toFixed(1)}%</b></div>
-    <div style="margin-top:10px;padding:10px;background:var(--bg3);border-radius:var(--r);font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7;">
-      💡 <b style="color:var(--text2)">ETD Insight:</b> You give back ${avgETDWin.toFixed(1)}% on average from the peak on winning trades. Exit quality: ${avgExitQ.toFixed(0)}%. ${avgExitQ>=70?'Excellent exits — timing is sharp.':avgExitQ>=50?'Decent exits — some improvement in trailing stop discipline could help.':'Exits need work — you are leaving a lot on the table or holding too long.'}
-    </div>`;
+    <div class="bench-row"><span>Avg exit quality score</span><b style="color:${avgExitQ>=70?'var(--green)':avgExitQ>=50?'var(--accent)':'var(--red)'};">${avgExitQ.toFixed(1)}%</b></div>`;
 }
 
-// ─── SETUP CHARTS — uses passed-in closed ─────────────
 function renderSetupCharts(closed){
   const setups=[...new Set(closed.map(t=>t.Setup).filter(Boolean))];
   const wrs=setups.map(s=>{
@@ -1336,7 +1284,6 @@ function renderSetupCharts(closed){
   });
 }
 
-// ─── BENCHMARK — uses passed-in closed ─────────────────
 function renderBenchmark(closed){
   const mp={};
   closed.forEach(t=>{
@@ -1358,7 +1305,6 @@ function renderBenchmark(closed){
   });
 }
 
-// ─── P&L CALENDAR (unchanged) ─────────────────────────
 function changeMonth(dir){currentCalDate.setMonth(currentCalDate.getMonth()+dir);renderCalendar();}
 function renderCalendar(){
   const yr=currentCalDate.getFullYear(),mo=currentCalDate.getMonth();
@@ -1394,27 +1340,12 @@ function renderCalendar(){
     <div class="bench-row"><span>Net P&L</span><b class="${mPnl>=0?'pos':'neg'}">${formatINR(mPnl)}</b></div>
     <div class="bench-row"><span>Trades Closed</span><b>${mCount}</b></div>
     <div class="bench-row"><span>Win Rate</span><b>${mCount?Math.round(mWins/mCount*100):0}%</b></div>`;
-  const sorted=[...monthTrades].sort((a,b)=>b._pnl-a._pnl);
-  const renderTradeRow=t=>`<div class="bench-row">
-    <span><b style="color:var(--text);">${t.Symbol}</b> <span style="color:var(--text3);font-size:9px;">${t['Exit Date']||''}</span></span>
-    <b class="${t._pnl>=0?'pos':'neg'}">${formatINR(t._pnl)}</b>
-  </div>`;
-  document.getElementById('calBestTrades').innerHTML=sorted.slice(0,4).length
-    ?sorted.slice(0,4).map(renderTradeRow).join(''):'<div style="color:var(--text3);font-size:11px;">—</div>';
-  const worst=sorted.filter(t=>t._pnl<0).slice(-4).reverse();
-  document.getElementById('calWorstTrades').innerHTML=worst.length
-    ?worst.map(renderTradeRow).join(''):'<div style="color:var(--text3);font-size:11px;">—</div>';
 }
 
-// ─── HEATMAP CALENDAR ─────────────────────────────────
 function renderHeatmap(){
   const {from, to} = getDateRange('heatmap');
-
-  // Determine the months to show
   const endDate   = to   || TODAY;
   const startDate = from || new Date(endDate.getFullYear(), endDate.getMonth()-11, 1);
-
-  // Build a map of exit date → trades
   const tradeDateMap = {};
   allTrades.forEach(t=>{
     const d = parseSheetDate(t['Exit Date']);
@@ -1423,83 +1354,42 @@ function renderHeatmap(){
     if(!tradeDateMap[key]) tradeDateMap[key] = [];
     tradeDateMap[key].push(t);
   });
-
-  // Compute per-day PnL totals — needed for colour thresholds
   const allDayPnls = Object.values(tradeDateMap).map(ts => ts.reduce((a,t)=>a+calcPnL(t),0));
   const posPnls = allDayPnls.filter(v=>v>0).sort((a,b)=>a-b);
   const negPnls = allDayPnls.filter(v=>v<0).sort((a,b)=>a-b);
   const p75pos  = posPnls.length ? posPnls[Math.floor(posPnls.length*0.75)] : 5000;
   const p75neg  = negPnls.length ? negPnls[Math.floor(negPnls.length*0.25)] : -5000;
-
   function cellClass(pnl){
     if(pnl===0) return 'hm-cell-none';
     if(Math.abs(pnl)<500) return 'hm-cell-breakeven';
     if(pnl>0) return pnl>=p75pos ? 'hm-cell-large-gain' : 'hm-cell-small-gain';
     return pnl<=p75neg ? 'hm-cell-large-loss' : 'hm-cell-small-loss';
   }
-
-  // Get array of months from start to end
   const months = [];
   let cur = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
   while(cur <= endDate){
     months.push(new Date(cur));
     cur.setMonth(cur.getMonth()+1);
   }
-
-  // Format MMM YY
-  function fmtMon(d){
-    return d.toLocaleString('default',{month:'short'}).toUpperCase() + ' ' + String(d.getFullYear()).slice(2);
-  }
-
-  const DOW = ['M','T','W','T','F']; // Mon–Fri only
-
+  const DOW = ['M','T','W','T','F'];
   const grid = document.getElementById('heatmapGrid');
   grid.innerHTML = '';
-
   let totalPnl=0, totalTrades=0, totalWins=0;
-
   months.forEach(mo=>{
     const yr = mo.getFullYear(), m = mo.getMonth();
     const daysInMo = new Date(yr, m+1, 0).getDate();
-
-    // Per-month stats
     let moPnl=0, moTrades=0, moWins=0;
-
-    // Build weeks: 5 columns (Mon–Fri), rows are weeks
-    // Collect all Mon–Fri dates this month
-    const weekCols = [[],[],[],[],[]]; // index 0=Mon,...,4=Fri
-    for(let d=1;d<=daysInMo;d++){
-      const date = new Date(yr,m,d);
-      const dow = date.getDay(); // 0=Sun,1=Mon...5=Fri,6=Sat
-      if(dow===0||dow===6) continue; // skip weekends
-      const colIdx = dow-1; // 0=Mon
-      weekCols[colIdx].push(d);
-    }
-
-    // Max weeks = length of longest column
-    const numWeeks = Math.max(...weekCols.map(c=>c.length));
-
-    // Build rows of cells (by week index)
-    // We need to know the week index for each date
-    // Approach: assign week number = Math.floor((dayOfWeek-adjusted)/7)
-    // Simpler: use the actual calendar week within month
-    const dayToWeek = {}; // date number → week row index
+    const dayToWeek = {}; 
     for(let d=1;d<=daysInMo;d++){
       const date = new Date(yr,m,d);
       const dow = date.getDay();
       if(dow===0||dow===6) continue;
-      // week row = floor of (d-1 adjusted for first Monday) -- use ISO week approach
-      // Just count: week index = how many Mondays have passed (including this if it IS Monday)
       let weekIdx = 0;
-      for(let dd=1;dd<d;dd++){
-        if(new Date(yr,m,dd).getDay()===1) weekIdx++;
-      }
+      for(let dd=1;dd<d;dd++){ if(new Date(yr,m,dd).getDay()===1) weekIdx++; }
       dayToWeek[d]=weekIdx;
     }
     const actualWeeks = Math.max(...Object.values(dayToWeek).concat([0]))+1;
-
-    // Build grid rows × 5 cols
-    const cells = Array.from({length:actualWeeks},()=>Array(5).fill(null)); // null=empty
+    const cells = Array.from({length:actualWeeks},()=>Array(5).fill(null));
     for(let d=1;d<=daysInMo;d++){
       const date=new Date(yr,m,d);
       const dow=date.getDay();
@@ -1507,97 +1397,55 @@ function renderHeatmap(){
       const col=dow-1, row=dayToWeek[d];
       cells[row][col]=d;
     }
-
-    // Render month column
     const col = document.createElement('div');
     col.className = 'hm-month';
-
-    // Header
     const hdr = document.createElement('div');
     hdr.className = 'hm-month-header';
-    hdr.textContent = fmtMon(mo);
+    hdr.textContent = mo.toLocaleString('default',{month:'short'}).toUpperCase() + ' ' + String(yr).slice(2);
     col.appendChild(hdr);
-
-    // DOW labels row
     const dowRow = document.createElement('div');
     dowRow.className = 'hm-day-row';
     dowRow.innerHTML = `<div class="hm-dow-label"></div>` + DOW.map(d=>`<div class="hm-dow-label">${d}</div>`).join('');
     col.appendChild(dowRow);
-
-    // Week rows
     cells.forEach((row,wi)=>{
       const wkRow = document.createElement('div');
       wkRow.className = 'hm-day-row';
-      // week number label
       wkRow.innerHTML=`<div class="hm-dow-label" style="color:var(--text3);font-size:7px;">W${wi+1}</div>`;
       row.forEach((day,ci)=>{
-        if(day===null){
-          wkRow.innerHTML+=`<div class="hm-cell hm-cell-empty"></div>`;
-          return;
-        }
+        if(day===null){ wkRow.innerHTML+=`<div class="hm-cell hm-cell-empty"></div>`; return; }
         const dateKey=`${yr}-${m+1}-${day}`;
         const dayTrades=tradeDateMap[dateKey]||[];
         const dayPnl=dayTrades.reduce((a,t)=>a+calcPnL(t),0);
         const dayCount=dayTrades.length;
         const dayWins=dayTrades.filter(t=>calcPnL(t)>0).length;
-
-        if(dayCount>0){
-          moPnl+=dayPnl; moTrades+=dayCount; moWins+=dayWins;
-        }
-
+        if(dayCount>0){ moPnl+=dayPnl; moTrades+=dayCount; moWins+=dayWins; }
         const cls = dayCount===0 ? 'hm-cell-none' : cellClass(dayPnl);
-        const dateObj=new Date(yr,m,day);
-        const isToday=dateObj.toDateString()===TODAY.toDateString();
-        const cellHtml=`<div class="hm-cell ${cls}" 
-          style="${isToday?'outline:2px solid var(--accent);outline-offset:-2px;':''}"
-          onmouseenter="showHmTooltip(event,'${new Date(yr,m,day).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}',${dayPnl.toFixed(0)},${dayCount},${dayWins>0&&dayCount>0?Math.round(dayWins/dayCount*100):0})"
-          onmouseleave="hideHmTooltip()">
-          ${day}
-        </div>`;
-        wkRow.innerHTML+=cellHtml;
+        const isToday=new Date(yr,m,day).toDateString()===TODAY.toDateString();
+        wkRow.innerHTML+=`<div class="hm-cell ${cls}" style="${isToday?'outline:2px solid var(--accent);outline-offset:-2px;':''}" onmouseenter="showHmTooltip(event,'${new Date(yr,m,day).toLocaleDateString('en-IN')}',${dayPnl},${dayCount},${dayCount?Math.round(dayWins/dayCount*100):0})" onmouseleave="hideHmTooltip()">${day}</div>`;
       });
       col.appendChild(wkRow);
     });
-
-    // Footer: PnL, trades, WR
     const footer = document.createElement('div');
     footer.className = 'hm-month-footer';
-    const wr = moTrades>0 ? Math.round(moWins/moTrades*100) : 0;
-    footer.innerHTML=`
-      <div class="hm-footer-pnl ${moPnl>=0?'pos':'neg'}">${moTrades?formatINR(moPnl):'—'}</div>
-      <div class="hm-footer-meta">${moTrades} trades · ${moTrades?wr+'% WR':'—'}</div>`;
+    footer.innerHTML=`<div class="hm-footer-pnl ${moPnl>=0?'pos':'neg'}">${moTrades?formatINR(moPnl):'—'}</div><div class="hm-footer-meta">${moTrades} trades · ${moTrades?Math.round(moWins/moTrades*100)+'% WR':'—'}</div>`;
     col.appendChild(footer);
     grid.appendChild(col);
-
     totalPnl+=moPnl; totalTrades+=moTrades; totalWins+=moWins;
   });
-
-  // Summary KPIs below heatmap
-  const overallWR = totalTrades ? Math.round(totalWins/totalTrades*100) : 0;
   document.getElementById('heatmap-kpis').innerHTML=[
-    {label:'Period P&L',   val:formatINR(totalPnl),  sub:'all closed trades', cls:totalPnl>=0?'pos':'neg'},
-    {label:'Total Trades', val:totalTrades,            sub:'exits in period',   cls:''},
-    {label:'Win Rate',     val:overallWR+'%',          sub:totalWins+'W / '+(totalTrades-totalWins)+'L', cls:overallWR>=50?'pos':'neg'},
-  ].map(k=>`<div class="kpi">
-    <div class="kpi-label">${k.label}</div>
-    <div class="kpi-val ${k.cls}">${k.val}</div>
-    <div class="kpi-sub">${k.sub}</div>
-  </div>`).join('');
+    {label:'Period P&L', val:formatINR(totalPnl), sub:'all closed', cls:totalPnl>=0?'pos':'neg'},
+    {label:'Total Trades', val:totalTrades, sub:'exits', cls:''},
+    {label:'Win Rate', val:(totalTrades?Math.round(totalWins/totalTrades*100):0)+'%', sub:totalWins+'W / '+(totalTrades-totalWins)+'L', cls:''},
+  ].map(k=>`<div class="kpi"><div class="kpi-label">${k.label}</div><div class="kpi-val ${k.cls}">${k.val}</div><div class="kpi-sub">${k.sub}</div></div>`).join('');
 }
 
 function showHmTooltip(e, dateStr, pnl, count, wr){
   const tt = document.getElementById('hmTooltip');
-  tt.style.display='block';
-  tt.style.left=(e.clientX+12)+'px';
-  tt.style.top=(e.clientY+12)+'px';
-  const color = pnl>0?'var(--green)':pnl<0?'var(--red)':'var(--text3)';
-  tt.innerHTML=`<b style="color:var(--text)">${dateStr}</b><br>
-    <span style="color:${color};font-weight:700;">${count?formatINR(pnl):'No trades'}</span>
-    ${count?`<br><span style="color:var(--text3)">${count} trade${count>1?'s':''} · ${wr}% WR</span>`:''}`;
+  tt.style.display='block'; tt.style.left=(e.clientX+12)+'px'; tt.style.top=(e.clientY+12)+'px';
+  tt.innerHTML=`<b>${dateStr}</b><br><span class="${pnl>=0?'pos':'neg'}">${formatINR(pnl)}</span><br>${count} trades · ${wr}% WR`;
 }
 function hideHmTooltip(){ document.getElementById('hmTooltip').style.display='none'; }
 
-// ─── HISTORY (unchanged) ───────────────────────────────
 function renderHistory(){
   const tv=document.getElementById('timeFilter').value;
   const sv=document.getElementById('setupFilter').value;
@@ -1615,57 +1463,33 @@ function renderHistory(){
     ? [...closed].reverse().map(t=>{
         const p=calcPnL(t),rr=calcRR(t),pct=calcPctMove(t),ep=calcExitPrice(t);
         const days=daysBetween(parseSheetDate(t['Entry Date']),parseSheetDate(t['Exit Date']));
-        return `<tr>
-          <td><b>${t.Symbol||'—'}</b></td><td>${t.Setup||'—'}</td>
-          <td>${t['Entry Date']||'—'}</td><td>${t['Exit Date']||'—'}</td>
-          <td>${days}d</td>
-          <td>₹${n(t.Entry).toFixed(2)}</td><td>₹${ep.toFixed(2)}</td>
-          <td>${n(t.QE).toLocaleString()}</td>
-          <td class="${p>=0?'pos':'neg'}">${formatINR(p)}</td>
-          <td class="${pct>=0?'pos':'neg'}">${pct.toFixed(2)}%</td>
-          <td class="${rr>=2?'pos':rr>=1?'neu':'neg'}">${rr.toFixed(2)}x</td>
-          <td><span style="padding:2px 8px;border-radius:4px;font-size:9px;background:${p>0?'var(--green-dim)':'var(--red-dim)'};color:${p>0?'var(--green)':'var(--red)'};">${p>0?'WIN':'LOSS'}</span></td>
-        </tr>`;
+        return `<tr><td><b>${t.Symbol}</b></td><td>${t.Setup}</td><td>${t['Entry Date']}</td><td>${t['Exit Date']}</td><td>${days}d</td><td>₹${n(t.Entry).toFixed(2)}</td><td>₹${ep.toFixed(2)}</td><td>${n(t.QE)}</td><td class="${p>=0?'pos':'neg'}">${formatINR(p)}</td><td class="${pct>=0?'pos':'neg'}">${pct.toFixed(2)}%</td><td class="${rr>=2?'pos':'neu'}">${rr.toFixed(2)}x</td><td><span style="padding:2px 8px;border-radius:4px;font-size:9px;background:${p>0?'var(--green-dim)':'var(--red-dim)'};color:${p>0?'var(--green)':'var(--red)'};">${p>0?'WIN':'LOSS'}</span></td></tr>`;
       }).join('')
-    :'<tr><td colspan="12" style="text-align:center;color:var(--text3);padding:24px;font-family:var(--mono);">No trades match filters</td></tr>';
+    :'<tr><td colspan="12" style="text-align:center;padding:24px;">No trades match filters</td></tr>';
 }
 
-// ─── EXPORT (unchanged) ────────────────────────────────
 function exportCSV(){
   const closed=getClosed();
   const hdr=['Symbol','Setup','Entry Date','Exit Date','Days','Entry','Exit','Qty','PnL','PctMove','RR','Outcome'];
-  const rows=closed.map(t=>{
-    const p=calcPnL(t),days=daysBetween(parseSheetDate(t['Entry Date']),parseSheetDate(t['Exit Date']));
-    return [t.Symbol,t.Setup,t['Entry Date'],t['Exit Date'],days,n(t.Entry).toFixed(2),calcExitPrice(t).toFixed(2),n(t.QE),p.toFixed(2),calcPctMove(t).toFixed(2),calcRR(t).toFixed(2),p>0?'WIN':'LOSS'].join(',');
-  });
+  const rows=closed.map(t=>[t.Symbol,t.Setup,t['Entry Date'],t['Exit Date'],daysBetween(parseSheetDate(t['Entry Date']),parseSheetDate(t['Exit Date'])),n(t.Entry),calcExitPrice(t),n(t.QE),calcPnL(t).toFixed(2),calcPctMove(t).toFixed(2),calcRR(t).toFixed(2),calcPnL(t)>0?'WIN':'LOSS'].join(','));
   const blob=new Blob([[hdr.join(','),...rows].join('\n')],{type:'text/csv'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ZBTradeDesk_export.csv';a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ZBTradeDesk.csv';a.click();
 }
 
-// ─── CALCULATORS (unchanged) ──────────────────────────
 function openCalcModal(){document.getElementById('calcModal').classList.add('open');runPS();runEx();runRM();runBR();runBE();runDD();}
 function closeCalcModal(){document.getElementById('calcModal').classList.remove('open');}
 function runPS(){
-  const cap=n(document.getElementById('psCapital').value),rt=document.getElementById('riskType').value,rv=n(document.getElementById('psRisk').value);
-  const e=n(document.getElementById('psEntry').value),sl=n(document.getElementById('psSL').value);
-  const tr=rt==='pct'?cap*rv/100:rv,rps=Math.abs(e-sl);
-  if(rps>0){const qty=Math.floor(tr/rps),val=qty*e;
-    document.getElementById('psResult').innerHTML=`<div style="color:var(--text2)">Total Risk: ₹${tr.toLocaleString('en-IN')}</div><div style="font-weight:700;color:var(--accent);font-size:16px;margin-top:4px;">Qty: ${qty.toLocaleString()}</div><div style="color:var(--text2)">Trade Value: ₹${val.toLocaleString('en-IN')} (${(val/cap*100).toFixed(1)}%)</div>`;}
+  const cap=n(document.getElementById('psCapital').value),rv=n(document.getElementById('psRisk').value),e=n(document.getElementById('psEntry').value),sl=n(document.getElementById('psSL').value);
+  const tr=document.getElementById('riskType').value==='pct'?cap*rv/100:rv,rps=Math.abs(e-sl);
+  if(rps>0){const qty=Math.floor(tr/rps);document.getElementById('psResult').innerHTML=`<div style="font-weight:700;color:var(--accent);font-size:16px;">Qty: ${qty}</div><div style="color:var(--text2)">Value: ₹${(qty*e).toLocaleString()} (${(qty*e/cap*100).toFixed(1)}%)</div>`;}
 }
-function runEx(){const e=n(document.getElementById('exEntry').value),p1=n(document.getElementById('exP1').value),p2=n(document.getElementById('exP2').value),p3=n(document.getElementById('exP3').value),avg=(p1+p2+p3)/3;
-  document.getElementById('exResult').innerHTML=`<div style="font-weight:700;color:var(--accent);font-size:15px;">Avg Profit: ${avg.toFixed(2)}%</div><div style="color:var(--text2)">Avg Exit Price: ₹${(e*(1+avg/100)).toFixed(2)}</div>`;}
-function runRM(){const e=n(document.getElementById('rmEntry').value),sl=n(document.getElementById('rmSL').value),r=e-sl;
-  if(r>0) document.getElementById('rmResult').innerHTML=[1,1.5,2,3,4].map(x=>`<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:var(--text2)">1:${x} RR</span><span class="pos">₹${(e+x*r).toFixed(2)}</span></div>`).join('');}
-function runBR(){const buy=n(document.getElementById('brBuy').value),sell=n(document.getElementById('brSell').value),qty=n(document.getElementById('brQty').value),b=n(document.getElementById('brBrok').value)/100;
-  const gross=(sell-buy)*qty,tc=(buy*qty+sell*qty)*b+sell*qty*0.001+16,net=gross-tc;
-  document.getElementById('brResult').innerHTML=`<div style="display:flex;justify-content:space-between;"><span style="color:var(--text2)">Gross</span><span class="${gross>=0?'pos':'neg'}">${formatINR(gross)}</span></div><div style="display:flex;justify-content:space-between;"><span style="color:var(--text2)">Costs</span><span class="neg">−₹${tc.toFixed(2)}</span></div><div style="display:flex;justify-content:space-between;font-weight:700;margin-top:5px;"><span>Net P&L</span><span class="${net>=0?'pos':'neg'}">${formatINR(net)}</span></div>`;}
-function runBE(){const entry=n(document.getElementById('beEntry').value),qty=n(document.getElementById('beQty').value),tc=n(document.getElementById('beBrok').value)+n(document.getElementById('beTax').value),be=entry+(tc/qty);
-  document.getElementById('beResult').innerHTML=`<div style="font-weight:700;color:var(--accent);font-size:15px;">BE Price: ₹${be.toFixed(2)}</div><div style="color:var(--text2)">Need +${((be-entry)/entry*100).toFixed(3)}% to break even</div>`;}
-function runDD(){const dd=n(document.getElementById('ddPct').value),rec=dd>0?((100/(100-dd))-1)*100:0;
-  document.getElementById('ddResult').innerHTML=`<div style="color:var(--text2)">After <b style="color:var(--red)">${dd}%</b> drawdown,</div><div style="font-weight:700;color:var(--accent);font-size:15px;">Need ${rec.toFixed(1)}% recovery</div>`;}
+function runEx(){const e=n(document.getElementById('exEntry').value),p1=n(document.getElementById('exP1').value),p2=n(document.getElementById('exP2').value),p3=n(document.getElementById('exP3').value),avg=(p1+p2+p3)/3;document.getElementById('exResult').innerHTML=`<div style="font-weight:700;color:var(--accent);">Avg Exit: ₹${(e*(1+avg/100)).toFixed(2)}</div>`;}
+function runRM(){const e=n(document.getElementById('rmEntry').value),sl=n(document.getElementById('rmSL').value),r=e-sl;if(r>0)document.getElementById('rmResult').innerHTML=[1,2,3].map(x=>`<div style="display:flex;justify-content:space-between;"><span style="color:var(--text2)">1:${x}</span><span class="pos">₹${(e+x*r).toFixed(2)}</span></div>`).join('');}
+function runBR(){const b=n(document.getElementById('brBuy').value),s=n(document.getElementById('brSell').value),q=n(document.getElementById('brQty').value),br=n(document.getElementById('brBrok').value)/100;const g=(s-b)*q,t=(b*q+s*q)*br+s*q*0.001,net=g-t;document.getElementById('brResult').innerHTML=`<div style="font-weight:700;color:var(--accent);">Net: ${formatINR(net)}</div>`;}
+function runBE(){const e=n(document.getElementById('beEntry').value),q=n(document.getElementById('beQty').value),t=n(document.getElementById('beBrok').value)+n(document.getElementById('beTax').value);document.getElementById('beResult').innerHTML=`<div style="font-weight:700;color:var(--accent);">BE Price: ₹${(e+t/q).toFixed(2)}</div>`;}
+function runDD(){const dd=n(document.getElementById('ddPct').value),rec=dd>0?((100/(100-dd))-1)*100:0;document.getElementById('ddResult').innerHTML=`<div style="font-weight:700;color:var(--accent);">Recovery: ${rec.toFixed(1)}%</div>`;}
 
-// ─── CHECKLIST (unchanged) ─────────────────────────────
-const CHECKLIST=["Is my thesis clearly defined?","Have I identified a key technical level for entry?","Is my stop loss placed at a logical structure?","Is the Risk:Reward at least 1:2?","Have I sized position correctly (max 2% risk)?","Is the broader market trend in my favour?","Is there a major event in the next 5 days?","Am I entering out of FOMO or analysis?","Is this setup in my playbook?","Have I reviewed my last 5 trades?"];
+const CHECKLIST=["Is my thesis clearly defined?","Key technical level identified?","Stop loss logical?","R:R at least 1:2?","Position sized correctly?","Market trend in favor?","Major events in next 5 days?","Entering without FOMO?","Is this in my playbook?","Reviewed last 5 trades?"];
 function openChecklistModal(){
   document.getElementById('checklistModal').classList.add('open');
   const c=document.getElementById('checklistItems');
@@ -1679,35 +1503,22 @@ function updateChecklist(){
   const pct=Math.round(ch/CHECKLIST.length*100);
   document.getElementById('checklistBar').style.width=pct+'%';
   document.getElementById('checklistScore').textContent=`${ch}/${CHECKLIST.length}`;
-  const v=document.getElementById('checklistVerdict');
-  if(pct===100) v.textContent='✅ Good to go!'; else if(pct>=70) v.textContent='⚠️ Proceed with caution'; else v.textContent='❌ Not ready';
 }
 function resetChecklist(){document.querySelectorAll('#checklistItems input[type=checkbox]').forEach(b=>b.checked=false);updateChecklist();}
 
-// ─── WEEKLY REVIEW (unchanged) ────────────────────────
 function saveReview(){
-  const week=document.getElementById('reviewWeek').value.trim();if(!week){alert('Enter the week period.');return;}
+  const week=document.getElementById('reviewWeek').value.trim();if(!week)return;
   weeklyReviews.unshift({id:Date.now(),week,mood:document.getElementById('reviewMood').value,well:document.getElementById('reviewWell').value,wrong:document.getElementById('reviewWrong').value,lesson:document.getElementById('reviewLesson').value,focus:document.getElementById('reviewFocus').value});
   localStorage.setItem('td_reviews',JSON.stringify(weeklyReviews));
-  ['reviewWeek','reviewWell','reviewWrong','reviewLesson','reviewFocus'].forEach(id=>document.getElementById(id).value='');
   renderReviews();
 }
 function deleteReview(id){weeklyReviews=weeklyReviews.filter(r=>r.id!==id);localStorage.setItem('td_reviews',JSON.stringify(weeklyReviews));renderReviews();}
 function renderReviews(){
   const c=document.getElementById('reviewHistory');
-  if(!weeklyReviews.length){c.innerHTML='<div style="font-size:12px;color:var(--text3);padding:24px;text-align:center;">No reviews yet.</div>';return;}
-  c.innerHTML=weeklyReviews.map(r=>`<div class="review-entry">
-    <div class="review-entry-date"><b style="color:var(--accent)">${r.week}</b><span style="margin-left:10px;padding:2px 7px;border-radius:4px;background:var(--bg4);font-size:9px;">${r.mood}</span><button onclick="deleteReview(${r.id})" style="float:right;background:none;border:none;color:var(--text3);cursor:pointer;font-family:var(--mono);">✕</button></div>
-    <div class="review-entry-content">
-      ${r.well?`<div><div style="color:var(--green);font-size:9px;margin-bottom:3px;">✅ WENT WELL</div><div style="color:var(--text2)">${r.well}</div></div>`:''}
-      ${r.wrong?`<div><div style="color:var(--red);font-size:9px;margin-bottom:3px;">❌ WENT WRONG</div><div style="color:var(--text2)">${r.wrong}</div></div>`:''}
-      ${r.lesson?`<div><div style="color:var(--accent);font-size:9px;margin-bottom:3px;">💡 LESSON</div><div style="color:var(--text2)">${r.lesson}</div></div>`:''}
-      ${r.focus?`<div><div style="color:var(--blue);font-size:9px;margin-bottom:3px;">🎯 NEXT WEEK</div><div style="color:var(--text2)">${r.focus}</div></div>`:''}
-    </div>
-  </div>`).join('');
+  if(!weeklyReviews.length){c.innerHTML='<div style="padding:24px;text-align:center;">No reviews yet.</div>';return;}
+  c.innerHTML=weeklyReviews.map(r=>`<div class="review-entry"><div class="review-entry-date"><b>${r.week}</b> [${r.mood}] <button onclick="deleteReview(${r.id})" style="float:right;">✕</button></div><div class="review-entry-content"><div>Lesson: ${r.lesson}</div></div></div>`).join('');
 }
 
-// ─── INIT ──────────────────────────────────────────────
 window.onload=function(){renderReviews();loadData();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCalcModal();closeChecklistModal();}});
 </script>
