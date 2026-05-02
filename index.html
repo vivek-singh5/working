@@ -248,12 +248,12 @@ select:focus,input:focus{border-color:var(--accent);}
       </div>
       <div class="date-filter-dropdown" id="heatmapFilterDropdown">
         <div class="dfd-option" onclick="applyDatePreset('heatmap','all',this)">All time</div>
-        <div class="dfd-option active" onclick="applyDatePreset('heatmap','12mo',this)">Last 12 months</div>
+        <div class="dfd-option" onclick="applyDatePreset('heatmap','12mo',this)">Last 12 months</div>
         <div class="dfd-option" onclick="applyDatePreset('heatmap','6mo',this)">Last 6 months</div>
         <div class="dfd-option" onclick="applyDatePreset('heatmap','3mo',this)">Last 3 months</div>
         <div class="dfd-option" onclick="applyDatePreset('heatmap','ytd',this)">This year (YTD)</div>
         <div class="dfd-option" onclick="applyDatePreset('heatmap','fy2526',this)">FY 2025-26</div>
-        <div class="dfd-option" onclick="applyDatePreset('heatmap','fy2627',this)">FY 2026-27</div>
+        <div class="dfd-option active" onclick="applyDatePreset('heatmap','fy2627',this)">FY 2026-27</div>
         <div class="dfd-divider"></div>
         <div class="dfd-custom">
           <div class="dfd-custom-label">Custom range</div>
@@ -420,6 +420,24 @@ select:focus,input:focus{border-color:var(--accent);}
       </tr></thead>
       <tbody id="insightBody"></tbody>
     </table>
+  </div>
+
+  <!-- RESTORED: BOTTOM VISUALS -->
+  <div class="slabel">📊 Monthly P&L</div>
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-title">MONTHLY NET P&L</div>
+    <div style="height:220px;"><canvas id="benchmarkChart"></canvas></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">SETUP WIN RATE COMPARISON</div>
+      <div style="height:220px;"><canvas id="setupWRChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">TRADE OUTCOME DISTRIBUTION</div>
+      <div style="height:220px;"><canvas id="outcomeChart"></canvas></div>
+    </div>
   </div>
 </div>
 
@@ -1057,7 +1075,6 @@ function renderMAEMFEETD(closed){
   renderETD(closed);
 }
 
-// DETAILED MAE SUMMARY
 function renderMAE(closed){
   const withMAE=closed.filter(t=>n(t.MAE)!==0); 
   const ctx=document.getElementById('maeChart').getContext('2d');
@@ -1080,7 +1097,6 @@ function renderMAE(closed){
       scales:{x:{title:{display:true,text:'Max Drawdown (MAE %)',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}},
               y:{title:{display:true,text:'Exit % Move',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}}}}
   });
-  
   const aw=Math.abs(ws.reduce((a,t)=>a+n(t.MAE),0))/(ws.length||1);
   const al=Math.abs(ls.reduce((a,t)=>a+n(t.MAE),0))/(ls.length||1);
   const maxMAE=Math.max(...withMAE.map(t=>Math.abs(n(t.MAE))));
@@ -1088,19 +1104,14 @@ function renderMAE(closed){
     const e=n(t.Entry),sl=n(t.SL);
     return e&&sl ? a+Math.abs((sl-e)/e*100) : a;
   },0)/(closed.length||1);
-
   document.getElementById('maeSummary').innerHTML=`
     <div class="bench-row"><span>Trades with MAE data</span><b>${withMAE.length}</b></div>
     <div class="bench-row"><span>Avg Drawdown — Winners</span><b class="neg">${aw.toFixed(2)}%</b></div>
     <div class="bench-row"><span>Avg Drawdown — Losers</span><b class="neg">${al.toFixed(2)}%</b></div>
     <div class="bench-row"><span>Max Drawdown ever</span><b class="neg">${maxMAE.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Avg SL distance</span><b style="color:var(--accent)">${SL_PCT.toFixed(2)}%</b></div>
-    <div style="margin-top:10px;padding:10px;background:var(--bg3);border-radius:var(--r);font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7;">
-      💡 <b style="color:var(--text2)">MAE Insight:</b> stops wide?
-    </div>`;
+    <div class="bench-row"><span>Avg SL distance</span><b style="color:var(--accent)">${SL_PCT.toFixed(2)}%</b></div>`;
 }
 
-// DETAILED MFE SUMMARY
 function renderMFE(closed){
   const withMFE=closed.filter(t=>n(t.MFE)>0);
   const ctx=document.getElementById('mfeChart').getContext('2d');
@@ -1126,21 +1137,18 @@ function renderMFE(closed){
       }
     }
   });
-  
   const avgMFEWin=ws.reduce((a,t)=>a+n(t.MFE),0)/(ws.length||1);
-  const avgMFELoss=ls.reduce((a,t)=>a+n(t.MFE),0)/(ls.length||1);
-  const maxMFE=Math.max(...withMFE.map(t=>n(t.MFE)));
   const winCapture = ws.filter(t=>n(t.MFE)>0).map(t=>calcPctMove(t)/n(t.MFE)*100);
   const avgCapture = winCapture.length ? winCapture.reduce((a,b)=>a+b,0)/winCapture.length : 0;
-  const pctLossHadMFE = withMFE.length ? (ls.filter(t=>n(t.MFE)>0).length/withMFE.length*100).toFixed(1) : 0;
+  const lossWithMFE = ls.filter(t=>n(t.MFE)>0).length;
+  const pctLossHadMFE = withMFE.length ? (lossWithMFE/withMFE.length*100).toFixed(1) : 0;
 
   document.getElementById('mfeSummary').innerHTML=`
     <div class="bench-row"><span>Avg MFE — Winners</span><b class="pos">+${avgMFEWin.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Avg capture rate</span><b style="color:var(--accent)">${avgCapture.toFixed(1)}%</b></div>
+    <div class="bench-row"><span>Avg capture rate (wins)</span><b style="color:var(--accent)">${avgCapture.toFixed(1)}%</b></div>
     <div class="bench-row"><span>% Losses with MFE</span><b class="neg">${pctLossHadMFE}%</b></div>`;
 }
 
-// DETAILED ETD SUMMARY
 function renderETD(closed){
   const withETD=closed.filter(t=>n(t.ETD)>0&&n(t.MFE)>0);
   const ctx=document.getElementById('etdChart').getContext('2d');
@@ -1163,7 +1171,6 @@ function renderETD(closed){
       }
     }
   });
-
   const exitQuality=withETD.filter(t=>n(t.MFE)>0).map(t=>(1-(n(t.ETD)/n(t.MFE)))*100);
   const avgExitQ=exitQuality.length?exitQuality.reduce((a,b)=>a+b,0)/exitQuality.length:0;
   document.getElementById('etdSummary').innerHTML=`<div class="bench-row"><span>Avg exit quality score</span><b style="color:var(--accent)">${avgExitQ.toFixed(1)}%</b></div>`;
@@ -1251,7 +1258,6 @@ function renderCalendar(){
     </div>`;
   }
   
-  // FIX: Populate side summary
   document.getElementById('calMonthSummary').innerHTML=`
     <div class="bench-row"><span>Month P&L</span><b class="${mPnl>=0?'pos':'neg'}">${formatINR(mPnl)}</b></div>
     <div class="bench-row"><span>Trades</span><b>${mCount}</b></div>
@@ -1398,7 +1404,6 @@ function exportCSV(){
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ZBTradeDesk.csv';a.click();
 }
 
-// CALCULATOR LOGIC
 function runPS(){
   const cap=n(document.getElementById('psCapital').value),rv=n(document.getElementById('psRisk').value),e=n(document.getElementById('psEntry').value),sl=n(document.getElementById('psSL').value);
   const tr=document.getElementById('riskType').value==='pct'?cap*rv/100:rv,rps=Math.abs(e-sl);
@@ -1410,9 +1415,9 @@ function runBR(){const b=n(document.getElementById('brBuy').value),s=n(document.
 function runBE(){const e=n(document.getElementById('beEntry').value),q=n(document.getElementById('beQty').value),t=n(document.getElementById('beBrok').value)+n(document.getElementById('beTax').value);document.getElementById('beResult').innerHTML=`<div style="font-weight:700;color:var(--accent);">BE Price: ₹${(e+t/q).toFixed(2)}</div>`;}
 function runDD(){const dd=n(document.getElementById('ddPct').value),rec=dd>0?((100/(100-dd))-1)*100:0;document.getElementById('ddResult').innerHTML=`<div style="font-weight:700;color:var(--accent);">Recovery: ${rec.toFixed(1)}%</div>`;}
 
-const CHECKLIST=["thesis defined?","technical levels?","stop loss?","R:R 1:2?","position size?","trend?","events?","no FOMO?","playbook?","last 5 trades?"];
 function openChecklistModal(){
   document.getElementById('checklistModal').classList.add('open');
+  const CHECKLIST=["thesis defined?","technical levels?","stop loss?","R:R 1:2?","position size?","trend?","events?","no FOMO?","playbook?","last 5 trades?"];
   const c=document.getElementById('checklistItems');
   if(!c.innerHTML) c.innerHTML=CHECKLIST.map((q,i)=>`<div class="checklist-item" id="ci_${i}"><input type="checkbox" id="cc_${i}" onchange="updateChecklist()"/><label for="cc_${i}">${q}</label></div>`).join('');
   updateChecklist();
@@ -1421,9 +1426,9 @@ function closeChecklistModal(){document.getElementById('checklistModal').classLi
 function updateChecklist(){
   const boxes=document.querySelectorAll('#checklistItems input[type=checkbox]');
   let ch=0;boxes.forEach((b,i)=>{if(b.checked){ch++;document.getElementById('ci_'+i).classList.add('checked');}else document.getElementById('ci_'+i).classList.remove('checked');});
-  const pct=Math.round(ch/CHECKLIST.length*100);
+  const pct=Math.round(ch/10*100);
   document.getElementById('checklistBar').style.width=pct+'%';
-  document.getElementById('checklistScore').textContent=`${ch}/${CHECKLIST.length}`;
+  document.getElementById('checklistScore').textContent=`${ch}/10`;
 }
 function resetChecklist(){document.querySelectorAll('#checklistItems input[type=checkbox]').forEach(b=>b.checked=false);updateChecklist();}
 
