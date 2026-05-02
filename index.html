@@ -119,14 +119,6 @@ select:focus,input:focus{border-color:var(--accent);}
 .checklist-item.checked label{color:var(--text3);text-decoration:line-through;}
 .checklist-progress{height:5px;background:var(--bg4);border-radius:3px;margin:12px 0;overflow:hidden;}
 .checklist-bar{height:100%;background:var(--accent);border-radius:3px;transition:width .3s;}
-.review-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.review-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:16px;}
-.review-box label{display:block;font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;margin-bottom:8px;}
-.review-box textarea{width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--border2);border-radius:var(--r);padding:10px;font-family:var(--mono);font-size:11px;resize:vertical;min-height:78px;outline:none;}
-.review-box textarea:focus{border-color:var(--accent);}
-.review-entry{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:8px;}
-.review-entry-date{font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:8px;}
-.review-entry-content{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:11px;font-family:var(--mono);}
 
 .date-filter-wrap{position:relative;display:inline-block;}
 .date-filter-btn{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:var(--r);cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:500;border:1px solid var(--border2);background:var(--bg3);color:var(--text);transition:all .15s;white-space:nowrap;}
@@ -173,7 +165,7 @@ select:focus,input:focus{border-color:var(--accent);}
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:3px;}
 @media(max-width:900px){
-  .grid-2,.grid-2-1,.calendar-layout,.review-grid{grid-template-columns:1fr;}
+  .grid-2,.grid-2-1,.calendar-layout{grid-template-columns:1fr;}
   .tabs{overflow-x:auto;}
   .kpi-row{flex-wrap:wrap;}
 }
@@ -194,7 +186,6 @@ select:focus,input:focus{border-color:var(--accent);}
     <div style="display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;color:var(--text3);">
       <div class="status-dot"></div><span id="lastUpdated">Loading...</span>
     </div>
-    <button class="btn" onclick="openCalcModal()">🧮 CALCULATORS</button>
     <button class="btn" onclick="openChecklistModal()">✅ PRE-TRADE</button>
     <button class="btn" onclick="toggleTheme()">🌓</button>
     <button class="btn btn-accent" onclick="loadData()">⟳ REFRESH</button>
@@ -208,12 +199,12 @@ select:focus,input:focus{border-color:var(--accent);}
   <div class="tab active" onclick="switchTab('overview')">OVERVIEW</div>
   <div class="tab" onclick="switchTab('analytics')">DEEP ANALYTICS</div>
   <div class="tab" onclick="switchTab('calendar')">P&L CALENDAR</div>
+  <div class="tab" onclick="switchTab('calculators')">CALCULATORS</div>
   <div class="tab" onclick="switchTab('history')">TRADE HISTORY</div>
-  <div class="tab" onclick="switchTab('journal')">WEEKLY JOURNAL</div>
 </div>
 
+<!-- OVERVIEW TAB -->
 <div class="tab-panel active" id="tab-overview">
-
   <div class="slabel">🛰 Active Portfolio</div>
   <div class="kpi-row" id="kpi-portfolio"></div>
 
@@ -291,28 +282,26 @@ select:focus,input:focus{border-color:var(--accent);}
 
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
     <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;">Overview Filter</div>
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-      <div class="date-filter-wrap" id="overviewFilterWrap">
-        <div class="date-filter-btn" id="overviewFilterBtn" onclick="toggleDateFilter('overview')">
-          <span>📅</span><span id="overviewFilterLabel">All Time</span><span class="arrow" id="overviewFilterArrow">▼</span>
-        </div>
-        <div class="date-filter-dropdown" id="overviewFilterDropdown">
-          <div class="dfd-option active" onclick="applyDatePreset('overview','all',this)">All time</div>
-          <div class="dfd-option" onclick="applyDatePreset('overview','week',this)">This week</div>
-          <div class="dfd-option" onclick="applyDatePreset('overview','month',this)">This month</div>
-          <div class="dfd-option" onclick="applyDatePreset('overview','ytd',this)">This year (YTD)</div>
-          <div class="dfd-option" onclick="applyDatePreset('overview','fy2526',this)">FY 2025-26</div>
-          <div class="dfd-option" onclick="applyDatePreset('overview','fy2627',this)">FY 2026-27</div>
-          <div class="dfd-divider"></div>
-          <div class="dfd-custom">
-            <div class="dfd-custom-label">Custom range</div>
-            <div class="dfd-custom-row">
-              <input type="date" id="overviewFrom"/>
-              <span>–</span>
-              <input type="date" id="overviewTo"/>
-            </div>
-            <button class="dfd-apply" onclick="applyDateCustom('overview')">Apply</button>
+    <div class="date-filter-wrap" id="overviewFilterWrap">
+      <div class="date-filter-btn" id="overviewFilterBtn" onclick="toggleDateFilter('overview')">
+        <span>📅</span><span id="overviewFilterLabel">All Time</span><span class="arrow" id="overviewFilterArrow">▼</span>
+      </div>
+      <div class="date-filter-dropdown" id="overviewFilterDropdown">
+        <div class="dfd-option active" onclick="applyDatePreset('overview','all',this)">All time</div>
+        <div class="dfd-option" onclick="applyDatePreset('overview','week',this)">This week</div>
+        <div class="dfd-option" onclick="applyDatePreset('overview','month',this)">This month</div>
+        <div class="dfd-option" onclick="applyDatePreset('overview','ytd',this)">This year (YTD)</div>
+        <div class="dfd-option" onclick="applyDatePreset('overview','fy2526',this)">FY 2025-26</div>
+        <div class="dfd-option" onclick="applyDatePreset('overview','fy2627',this)">FY 2026-27</div>
+        <div class="dfd-divider"></div>
+        <div class="dfd-custom">
+          <div class="dfd-custom-label">Custom range</div>
+          <div class="dfd-custom-row">
+            <input type="date" id="overviewFrom"/>
+            <span>–</span>
+            <input type="date" id="overviewTo"/>
           </div>
+          <button class="dfd-apply" onclick="applyDateCustom('overview')">Apply</button>
         </div>
       </div>
     </div>
@@ -333,6 +322,7 @@ select:focus,input:focus{border-color:var(--accent);}
   </div>
 </div>
 
+<!-- ANALYTICS TAB -->
 <div class="tab-panel" id="tab-analytics">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
     <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;">Analytics Filter</div>
@@ -393,7 +383,7 @@ select:focus,input:focus{border-color:var(--accent);}
   <div style="margin-bottom:8px;font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;">Max Favourable Excursion (MFE)</div>
   <div class="grid-2" style="margin-bottom:20px;">
     <div class="card">
-      <div class="card-title">MFE SCATTER — How much did winning trades run?</div>
+      <div class="card-title">MFE SCATTER</div>
       <div style="height:220px;"><canvas id="mfeChart"></canvas></div>
     </div>
     <div class="card">
@@ -405,7 +395,7 @@ select:focus,input:focus{border-color:var(--accent);}
   <div style="margin-bottom:8px;font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;">End-Trade Drawdown (ETD)</div>
   <div class="grid-2" style="margin-bottom:20px;">
     <div class="card">
-      <div class="card-title">ETD SCATTER — MFE vs ETD (exit quality)</div>
+      <div class="card-title">ETD SCATTER</div>
       <div style="height:220px;"><canvas id="etdChart"></canvas></div>
     </div>
     <div class="card">
@@ -431,25 +421,9 @@ select:focus,input:focus{border-color:var(--accent);}
       <tbody id="insightBody"></tbody>
     </table>
   </div>
-
-  <div class="slabel">📊 Monthly P&L</div>
-  <div class="card" style="margin-bottom:20px;">
-    <div class="card-title">MONTHLY NET P&L</div>
-    <div style="height:220px;"><canvas id="benchmarkChart"></canvas></div>
-  </div>
-
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title">SETUP WIN RATE COMPARISON</div>
-      <div style="height:220px;"><canvas id="setupWRChart"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">TRADE OUTCOME DISTRIBUTION</div>
-      <div style="height:220px;"><canvas id="outcomeChart"></canvas></div>
-    </div>
-  </div>
 </div>
 
+<!-- P&L CALENDAR TAB -->
 <div class="tab-panel" id="tab-calendar">
   <div class="slabel">📅 P&L Calendar</div>
   <div class="calendar-layout">
@@ -477,6 +451,52 @@ select:focus,input:focus{border-color:var(--accent);}
   </div>
 </div>
 
+<!-- CALCULATORS TAB -->
+<div class="tab-panel" id="tab-calculators">
+  <div class="slabel">🧮 Trading Calculators</div>
+  <div class="calc-grid">
+    <div class="calc-box"><h4>1. POSITION SIZING</h4>
+      <div class="calc-row"><span>Capital (₹)</span><input type="number" id="psCapital" value="1000000" oninput="runPS()"/></div>
+      <div class="calc-row"><span>Risk Type</span><select id="riskType" onchange="runPS()"><option value="pct">% of Capital</option><option value="val">Fixed ₹ Risk</option></select></div>
+      <div class="calc-row"><span>Risk Value</span><input type="number" id="psRisk" value="1" oninput="runPS()"/></div>
+      <div class="calc-row"><span>Entry (₹)</span><input type="number" id="psEntry" value="200" oninput="runPS()"/></div>
+      <div class="calc-row"><span>Stop Loss (₹)</span><input type="number" id="psSL" value="185" oninput="runPS()"/></div>
+      <div class="calc-result" id="psResult"></div>
+    </div>
+    <div class="calc-box"><h4>2. 1/3rd EXIT TACTIC</h4>
+      <div class="calc-row"><span>Entry Price (₹)</span><input type="number" id="exEntry" value="100" oninput="runEx()"/></div>
+      <div class="calc-row"><span>Sell 1 Profit (%)</span><input type="number" id="exP1" value="10" oninput="runEx()"/></div>
+      <div class="calc-row"><span>Sell 2 Profit (%)</span><input type="number" id="exP2" value="20" oninput="runEx()"/></div>
+      <div class="calc-row"><span>Sell 3 Profit (%)</span><input type="number" id="exP3" value="30" oninput="runEx()"/></div>
+      <div class="calc-result" id="exResult"></div>
+    </div>
+    <div class="calc-box"><h4>3. R:R MATRIX</h4>
+      <div class="calc-row"><span>Entry</span><input type="number" id="rmEntry" value="100" oninput="runRM()"/></div>
+      <div class="calc-row"><span>Stop Loss</span><input type="number" id="rmSL" value="95" oninput="runRM()"/></div>
+      <div class="calc-result" id="rmResult"></div>
+    </div>
+    <div class="calc-box"><h4>4. BROKERAGE ESTIMATE</h4>
+      <div class="calc-row"><span>Buy Price (₹)</span><input type="number" id="brBuy" value="200" oninput="runBR()"/></div>
+      <div class="calc-row"><span>Sell Price (₹)</span><input type="number" id="brSell" value="220" oninput="runBR()"/></div>
+      <div class="calc-row"><span>Quantity</span><input type="number" id="brQty" value="100" oninput="runBR()"/></div>
+      <div class="calc-row"><span>Brokerage (%)</span><input type="number" id="brBrok" value="0.03" step="0.01" oninput="runBR()"/></div>
+      <div class="calc-result" id="brResult"></div>
+    </div>
+    <div class="calc-box"><h4>5. BREAKEVEN CALCULATOR</h4>
+      <div class="calc-row"><span>Entry (₹)</span><input type="number" id="beEntry" value="200" oninput="runBE()"/></div>
+      <div class="calc-row"><span>Quantity</span><input type="number" id="beQty" value="100" oninput="runBE()"/></div>
+      <div class="calc-row"><span>Brokerage (₹)</span><input type="number" id="beBrok" value="40" oninput="runBE()"/></div>
+      <div class="calc-row"><span>STT + Others (₹)</span><input type="number" id="beTax" value="30" oninput="runBE()"/></div>
+      <div class="calc-result" id="beResult"></div>
+    </div>
+    <div class="calc-box"><h4>6. DRAWDOWN RECOVERY</h4>
+      <div class="calc-row"><span>Drawdown (%)</span><input type="number" id="ddPct" value="20" oninput="runDD()"/></div>
+      <div class="calc-result" id="ddResult"></div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY TAB -->
 <div class="tab-panel" id="tab-history">
   <div class="table-wrap">
     <div class="table-toolbar">
@@ -504,90 +524,6 @@ select:focus,input:focus{border-color:var(--accent);}
   </div>
 </div>
 
-<div class="tab-panel" id="tab-journal">
-  <div class="slabel">📝 Weekly Review</div>
-  <div class="card" style="margin-bottom:20px;">
-    <div class="card-title">ADD THIS WEEK'S REVIEW</div>
-    <div class="review-grid">
-      <div class="review-box">
-        <label>WEEK OF</label>
-        <input type="text" id="reviewWeek" placeholder="e.g. Apr 21–27, 2026" style="width:100%;"/>
-      </div>
-      <div class="review-box">
-        <label>MARKET MOOD</label>
-        <select id="reviewMood" style="width:100%;"><option>Bullish</option><option>Bearish</option><option>Rangebound</option><option>Volatile</option></select>
-      </div>
-      <div class="review-box">
-        <label>✅ WHAT WENT WELL</label>
-        <textarea id="reviewWell" placeholder="Discipline, setups taken, exits..."></textarea>
-      </div>
-      <div class="review-box">
-        <label>❌ WHAT WENT WRONG</label>
-        <textarea id="reviewWrong" placeholder="Mistakes, FOMO, rule violations..."></textarea>
-      </div>
-      <div class="review-box">
-        <label>💡 KEY LESSON</label>
-        <textarea id="reviewLesson" placeholder="One thing to remember next week..."></textarea>
-      </div>
-      <div class="review-box">
-        <label>🎯 FOCUS FOR NEXT WEEK</label>
-        <textarea id="reviewFocus" placeholder="Specific improvement goal..."></textarea>
-      </div>
-    </div>
-    <button class="btn btn-accent" onclick="saveReview()" style="margin-top:14px;">SAVE REVIEW</button>
-  </div>
-  <div id="reviewHistory"></div>
-</div>
-
-</div><!-- /app -->
-
-<div class="modal-overlay" id="calcModal">
-  <div class="modal" style="max-width:1000px;">
-    <button class="modal-close" onclick="closeCalcModal()">×</button>
-    <h2 style="font-size:18px;margin-bottom:20px;font-weight:700;">Trading Calculators</h2>
-    <div class="calc-grid">
-      <div class="calc-box"><h4>1. POSITION SIZING</h4>
-        <div class="calc-row"><span>Capital (₹)</span><input type="number" id="psCapital" value="1000000" oninput="runPS()"/></div>
-        <div class="calc-row"><span>Risk Type</span><select id="riskType" onchange="runPS()"><option value="pct">% of Capital</option><option value="val">Fixed ₹ Risk</option></select></div>
-        <div class="calc-row"><span>Risk Value</span><input type="number" id="psRisk" value="1" oninput="runPS()"/></div>
-        <div class="calc-row"><span>Entry (₹)</span><input type="number" id="psEntry" value="200" oninput="runPS()"/></div>
-        <div class="calc-row"><span>Stop Loss (₹)</span><input type="number" id="psSL" value="185" oninput="runPS()"/></div>
-        <div class="calc-result" id="psResult"></div>
-      </div>
-      <div class="calc-box"><h4>2. 1/3rd EXIT TACTIC</h4>
-        <div class="calc-row"><span>Entry Price (₹)</span><input type="number" id="exEntry" value="100" oninput="runEx()"/></div>
-        <div class="calc-row"><span>Sell 1 Profit (%)</span><input type="number" id="exP1" value="10" oninput="runEx()"/></div>
-        <div class="calc-row"><span>Sell 2 Profit (%)</span><input type="number" id="exP2" value="20" oninput="runEx()"/></div>
-        <div class="calc-row"><span>Sell 3 Profit (%)</span><input type="number" id="exP3" value="30" oninput="runEx()"/></div>
-        <div class="calc-result" id="exResult"></div>
-      </div>
-      <div class="calc-box"><h4>3. R:R MATRIX</h4>
-        <div class="calc-row"><span>Entry</span><input type="number" id="rmEntry" value="100" oninput="runRM()"/></div>
-        <div class="calc-row"><span>Stop Loss</span><input type="number" id="rmSL" value="95" oninput="runRM()"/></div>
-        <div class="calc-result" id="rmResult"></div>
-      </div>
-      <div class="calc-box"><h4>4. BROKERAGE ESTIMATE</h4>
-        <div class="calc-row"><span>Buy Price (₹)</span><input type="number" id="brBuy" value="200" oninput="runBR()"/></div>
-        <div class="calc-row"><span>Sell Price (₹)</span><input type="number" id="brSell" value="220" oninput="runBR()"/></div>
-        <div class="calc-row"><span>Quantity</span><input type="number" id="brQty" value="100" oninput="runBR()"/></div>
-        <div class="calc-row"><span>Brokerage (%)</span><input type="number" id="brBrok" value="0.03" step="0.01" oninput="runBR()"/></div>
-        <div class="calc-result" id="brResult"></div>
-      </div>
-      <div class="calc-box"><h4>5. BREAKEVEN CALCULATOR</h4>
-        <div class="calc-row"><span>Entry (₹)</span><input type="number" id="beEntry" value="200" oninput="runBE()"/></div>
-        <div class="calc-row"><span>Quantity</span><input type="number" id="beQty" value="100" oninput="runBE()"/></div>
-        <div class="calc-row"><span>Brokerage (₹)</span><input type="number" id="beBrok" value="40" oninput="runBE()"/></div>
-        <div class="calc-row"><span>STT + Others (₹)</span><input type="number" id="beTax" value="30" oninput="runBE()"/></div>
-        <div class="calc-result" id="beResult"></div>
-      </div>
-      <div class="calc-box"><h4>6. DRAWDOWN RECOVERY</h4>
-        <div class="calc-row"><span>Drawdown (%)</span><input type="number" id="ddPct" value="20" oninput="runDD()"/></div>
-        <div class="calc-result" id="ddResult"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <div class="modal-overlay" id="checklistModal">
   <div class="modal" style="max-width:600px;">
     <button class="modal-close" onclick="closeChecklistModal()">×</button>
@@ -604,11 +540,12 @@ select:focus,input:focus{border-color:var(--accent);}
 
 <div class="hm-tooltip" id="hmTooltip"></div>
 
+</div><!-- /app -->
+
 <script>
 let allTrades    = [];
 let charts       = {};
 let currentCalDate = new Date(2026, 3, 1);
-let weeklyReviews  = JSON.parse(localStorage.getItem('td_reviews') || '[]');
 
 const dateFilters = {
   overview:  { type: 'all', from: null, to: null },
@@ -672,10 +609,11 @@ function daysBetween(a,b){return(!a||!b)?0:Math.round(Math.abs(b-a)/86400000);}
 function toggleTheme(){const b=document.body;b.setAttribute('data-theme',b.getAttribute('data-theme')==='dark'?'light':'dark');}
 
 function switchTab(id){
-  const ids=['overview','analytics','calendar','history','journal'];
+  const ids=['overview','analytics','calendar','calculators','history'];
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',ids[i]===id));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+id));
   if(id==='overview') renderHeatmap();
+  if(id==='calculators') { runPS(); runEx(); runRM(); runBR(); runBE(); runDD(); }
 }
 
 const TODAY = new Date(2026,3,27); 
@@ -1119,13 +1057,13 @@ function renderMAEMFEETD(closed){
   renderETD(closed);
 }
 
-// RESTORED DETAILED MAE SUMMARY
+// DETAILED MAE SUMMARY
 function renderMAE(closed){
   const withMAE=closed.filter(t=>n(t.MAE)!==0); 
   const ctx=document.getElementById('maeChart').getContext('2d');
   if(charts.mae) charts.mae.destroy();
   if(!withMAE.length){
-    document.getElementById('maeSummary').innerHTML='<div style="color:var(--text3);font-size:11px;line-height:1.8;">Add a <b style="color:var(--accent)">MAE</b> column to your Google Sheet.<br><br>MAE = max % adverse move from entry during the trade before it recovered or hit SL.</div>';
+    document.getElementById('maeSummary').innerHTML='<div style="color:var(--text3);font-size:11px;line-height:1.8;">Add a <b style="color:var(--accent)">MAE</b> column to your Google Sheet.</div>';
     charts.mae=new Chart(ctx,{type:'scatter',data:{datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
     return;
   }
@@ -1158,17 +1096,17 @@ function renderMAE(closed){
     <div class="bench-row"><span>Max Drawdown ever</span><b class="neg">${maxMAE.toFixed(2)}%</b></div>
     <div class="bench-row"><span>Avg SL distance</span><b style="color:var(--accent)">${SL_PCT.toFixed(2)}%</b></div>
     <div style="margin-top:10px;padding:10px;background:var(--bg3);border-radius:var(--r);font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7;">
-      💡 <b style="color:var(--text2)">MAE Insight:</b> If avg MAE on winners (${aw.toFixed(1)}%) is much lower than avg SL (${SL_PCT.toFixed(1)}%), your stops may be too wide. Tighter stops = better capital efficiency.
+      💡 <b style="color:var(--text2)">MAE Insight:</b> stops wide?
     </div>`;
 }
 
-// RESTORED DETAILED MFE SUMMARY
+// DETAILED MFE SUMMARY
 function renderMFE(closed){
   const withMFE=closed.filter(t=>n(t.MFE)>0);
   const ctx=document.getElementById('mfeChart').getContext('2d');
   if(charts.mfe) charts.mfe.destroy();
   if(!withMFE.length){
-    document.getElementById('mfeSummary').innerHTML='<div style="color:var(--text3);font-size:11px;">Add <b style="color:var(--accent)">MFE</b> column to your Google Sheet.</div>';
+    document.getElementById('mfeSummary').innerHTML='<div style="color:var(--text3);font-size:11px;">Add <b style="color:var(--accent)">MFE</b> column.</div>';
     charts.mfe=new Chart(ctx,{type:'scatter',data:{datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
     return;
   }
@@ -1194,28 +1132,21 @@ function renderMFE(closed){
   const maxMFE=Math.max(...withMFE.map(t=>n(t.MFE)));
   const winCapture = ws.filter(t=>n(t.MFE)>0).map(t=>calcPctMove(t)/n(t.MFE)*100);
   const avgCapture = winCapture.length ? winCapture.reduce((a,b)=>a+b,0)/winCapture.length : 0;
-  const lossWithMFE = ls.filter(t=>n(t.MFE)>0).length;
-  const pctLossHadMFE = withMFE.length ? (lossWithMFE/withMFE.length*100).toFixed(1) : 0;
+  const pctLossHadMFE = withMFE.length ? (ls.filter(t=>n(t.MFE)>0).length/withMFE.length*100).toFixed(1) : 0;
 
   document.getElementById('mfeSummary').innerHTML=`
-    <div class="bench-row"><span>Trades with MFE data</span><b>${withMFE.length}</b></div>
     <div class="bench-row"><span>Avg MFE — Winners</span><b class="pos">+${avgMFEWin.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Avg MFE — Losers</span><b class="pos">+${avgMFELoss.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Max MFE ever</span><b class="pos">+${maxMFE.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Avg capture rate (wins)</span><b style="color:var(--accent)">${avgCapture.toFixed(1)}%</b></div>
-    <div class="bench-row"><span>% Losses with MFE</span><b class="neg">${pctLossHadMFE}%</b></div>
-    <div style="margin-top:10px;padding:10px;background:var(--bg3);border-radius:var(--r);font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7;">
-      💡 <b style="color:var(--text2)">MFE Insight:</b> Capture rate of ${avgCapture.toFixed(1)}% means you keep that much of the trade's potential. ${parseFloat(pctLossHadMFE)>40?'Many losses had positive MFE — consider trailing stops.':'Solid exit management.'}
-    </div>`;
+    <div class="bench-row"><span>Avg capture rate</span><b style="color:var(--accent)">${avgCapture.toFixed(1)}%</b></div>
+    <div class="bench-row"><span>% Losses with MFE</span><b class="neg">${pctLossHadMFE}%</b></div>`;
 }
 
-// RESTORED DETAILED ETD SUMMARY
+// DETAILED ETD SUMMARY
 function renderETD(closed){
   const withETD=closed.filter(t=>n(t.ETD)>0&&n(t.MFE)>0);
   const ctx=document.getElementById('etdChart').getContext('2d');
   if(charts.etd) charts.etd.destroy();
   if(!withETD.length){
-    document.getElementById('etdSummary').innerHTML='<div style="color:var(--text3);font-size:11px;">Add <b style="color:var(--accent)">ETD</b> column to your Google Sheet.</div>';
+    document.getElementById('etdSummary').innerHTML='<div style="color:var(--text3);font-size:11px;">Add <b style="color:var(--accent)">ETD</b> column.</div>';
     charts.etd=new Chart(ctx,{type:'scatter',data:{datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
     return;
   }
@@ -1227,25 +1158,15 @@ function renderETD(closed){
       plugins:{legend:{labels:{font:{family:'JetBrains Mono',size:9},color:'#94a3b8',boxWidth:10}},
                 tooltip:{callbacks:{label:c=>`${c.raw.sym||''} | MFE: ${c.raw.x}% | ETD: ${c.raw.y}%`}}},
       scales:{
-        x:{title:{display:true,text:'MFE % (How far it ran)',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}},
-        y:{title:{display:true,text:'ETD % (Gave back)',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}}
+        x:{title:{display:true,text:'MFE %',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{title:{display:true,text:'ETD %',font:{family:'JetBrains Mono',size:9},color:'#64748b'},grid:{color:'rgba(255,255,255,0.04)'}}
       }
     }
   });
 
-  const avgETDWin=ws.reduce((a,t)=>a+n(t.ETD),0)/(ws.length||1);
-  const maxETD=Math.max(...withETD.map(t=>n(t.ETD)));
   const exitQuality=withETD.filter(t=>n(t.MFE)>0).map(t=>(1-(n(t.ETD)/n(t.MFE)))*100);
   const avgExitQ=exitQuality.length?exitQuality.reduce((a,b)=>a+b,0)/exitQuality.length:0;
-
-  document.getElementById('etdSummary').innerHTML=`
-    <div class="bench-row"><span>Trades with ETD data</span><b>${withETD.length}</b></div>
-    <div class="bench-row"><span>Avg ETD — Winners</span><b class="neg">${avgETDWin.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Max ETD ever</span><b class="neg">${maxETD.toFixed(2)}%</b></div>
-    <div class="bench-row"><span>Avg exit quality score</span><b style="color:var(--accent)">${avgExitQ.toFixed(1)}%</b></div>
-    <div style="margin-top:10px;padding:10px;background:var(--bg3);border-radius:var(--r);font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7;">
-      💡 <b style="color:var(--text2)">ETD Insight:</b> High ETD means you are giving back too much profit from the peak. Exit quality of ${avgExitQ.toFixed(0)}% shows how close to the peak you are selling.
-    </div>`;
+  document.getElementById('etdSummary').innerHTML=`<div class="bench-row"><span>Avg exit quality score</span><b style="color:var(--accent)">${avgExitQ.toFixed(1)}%</b></div>`;
 }
 
 function renderSetupCharts(closed){
@@ -1265,9 +1186,9 @@ function renderSetupCharts(closed){
               y:{grid:{display:false},ticks:{font:{family:'JetBrains Mono',size:9},color:'#94a3b8'}}}}
   });
   const pnls=closed.map(calcPnL);
+  const bins={big_win:0,small_win:0,small_loss:0,big_loss:0};
   const aw=pnls.filter(v=>v>0).reduce((a,b)=>a+b,0)/(pnls.filter(v=>v>0).length||1);
   const al=Math.abs(pnls.filter(v=>v<0).reduce((a,b)=>a+b,0))/(pnls.filter(v=>v<0).length||1);
-  const bins={big_win:0,small_win:0,small_loss:0,big_loss:0};
   pnls.forEach(p=>{if(p>aw)bins.big_win++;else if(p>0)bins.small_win++;else if(Math.abs(p)<al)bins.small_loss++;else bins.big_loss++;});
   const ctx2=document.getElementById('outcomeChart').getContext('2d');
   if(charts.outcome) charts.outcome.destroy();
@@ -1309,21 +1230,38 @@ function renderCalendar(){
   grid.innerHTML='';
   for(let i=0;i<firstDay;i++) grid.innerHTML+=`<div class="cal-cell cal-empty"></div>`;
   const dayMap={};
+  const monthTrades=[];
   allTrades.forEach(t=>{
     const d=parseSheetDate(t['Exit Date']);
     if(!d||d.getFullYear()!==yr||d.getMonth()!==mo) return;
     const day=d.getDate();
+    const p = calcPnL(t);
     if(!dayMap[day]) dayMap[day]={pnl:0,count:0};
-    dayMap[day].pnl+=calcPnL(t);dayMap[day].count++;
+    dayMap[day].pnl+=p;dayMap[day].count++;
+    monthTrades.push({...t, _pnl: p});
   });
+  let mPnl=0,mWins=0,mCount=0;
   for(let d=1;d<=daysInMonth;d++){
     const dd=dayMap[d]||{pnl:0,count:0};
+    mPnl += dd.pnl; mCount += dd.count; if(dd.pnl > 0) mWins += dd.count;
     const isTd=new Date(yr,mo,d).toDateString()===TODAY.toDateString();
     grid.innerHTML+=`<div class="cal-cell${isTd?' cal-today':''}">
       <div class="cal-date">${d}</div>
       <div class="cal-pnl ${dd.pnl>0?'pos':dd.pnl<0?'neg':''}">${dd.pnl?formatINR(dd.pnl):''}</div>
     </div>`;
   }
+  
+  // FIX: Populate side summary
+  document.getElementById('calMonthSummary').innerHTML=`
+    <div class="bench-row"><span>Month P&L</span><b class="${mPnl>=0?'pos':'neg'}">${formatINR(mPnl)}</b></div>
+    <div class="bench-row"><span>Trades</span><b>${mCount}</b></div>
+    <div class="bench-row"><span>Win Rate</span><b>${mCount?Math.round(mWins/mCount*100):0}%</b></div>`;
+  
+  const sorted = monthTrades.sort((a,b)=>b._pnl - a._pnl);
+  document.getElementById('calBestTrades').innerHTML = sorted.slice(0,4).map(t=>`
+    <div class="bench-row"><span>${t.Symbol}</span><b class="pos">${formatINR(t._pnl)}</b></div>`).join('') || '—';
+  document.getElementById('calWorstTrades').innerHTML = sorted.reverse().slice(0,4).filter(t=>t._pnl<0).map(t=>`
+    <div class="bench-row"><span>${t.Symbol}</span><b class="neg">${formatINR(t._pnl)}</b></div>`).join('') || '—';
 }
 
 function renderHeatmap(){
@@ -1394,7 +1332,6 @@ function renderHeatmap(){
           const pnl = ts.reduce((a,t)=>a+calcPnL(t),0);
           const cls = ts.length===0 ? 'hm-cell-none' : cellClass(pnl);
           moPnl += pnl; moCount += ts.length; moWins += ts.filter(t=>calcPnL(t)>0).length;
-
           const tsString = ts.map(t => {
               const tpnl = calcPnL(t);
               const tpct = calcPctMove(t);
@@ -1404,20 +1341,17 @@ function renderHeatmap(){
                         <span style="color:${color};font-weight:600;">${tpnl>=0?'+':''}${tpnl.toFixed(0)} (${tpct.toFixed(1)}%)</span>
                       </div>`;
           }).join('');
-
           row.innerHTML += `<div class="hm-cell ${cls}" onmouseenter="showHmTooltip(event,'${dayNum} ${mo.toLocaleString('default',{month:'short'})}',${pnl},${ts.length},'${btoa(tsString)}')" onmouseleave="hideHmTooltip()">${dayNum}</div>`;
         }
       }
       dayGrid.appendChild(row);
     });
     col.appendChild(dayGrid);
-
     const footer = document.createElement('div');
     footer.className = 'hm-month-footer';
     footer.innerHTML=`<div style="font-size:9px;font-weight:700;margin-bottom:2px;" class="${moPnl>=0?'pos':'neg'}">${moCount ? formatINR(moPnl) : '—'}</div>
                       <div class="hm-footer-meta">${moCount} trades · ${moCount ? Math.round(moWins/moCount*100)+'%' : '—'}</div>`;
     col.appendChild(footer);
-
     grid.appendChild(col);
   });
 }
@@ -1464,15 +1398,14 @@ function exportCSV(){
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ZBTradeDesk.csv';a.click();
 }
 
-function openCalcModal(){document.getElementById('calcModal').classList.add('open');runPS();runEx();runRM();runBR();runBE();runDD();}
-function closeCalcModal(){document.getElementById('calcModal').classList.remove('open');}
+// CALCULATOR LOGIC
 function runPS(){
   const cap=n(document.getElementById('psCapital').value),rv=n(document.getElementById('psRisk').value),e=n(document.getElementById('psEntry').value),sl=n(document.getElementById('psSL').value);
   const tr=document.getElementById('riskType').value==='pct'?cap*rv/100:rv,rps=Math.abs(e-sl);
   if(rps>0){const qty=Math.floor(tr/rps);document.getElementById('psResult').innerHTML=`<div style="font-weight:700;color:var(--accent);font-size:16px;">Qty: ${qty}</div><div style="color:var(--text2)">Value: ₹${(qty*e).toLocaleString()} (${(qty*e/cap*100).toFixed(1)}%)</div>`;}
 }
 function runEx(){const e=n(document.getElementById('exEntry').value),p1=n(document.getElementById('exP1').value),p2=n(document.getElementById('exP2').value),p3=n(document.getElementById('exP3').value),avg=(p1+p2+p3)/3;document.getElementById('exResult').innerHTML=`<div style="font-weight:700;color:var(--accent);">Avg Exit: ₹${(e*(1+avg/100)).toFixed(2)}</div>`;}
-function runRM(){const e=n(document.getElementById('rmEntry').value),sl=n(document.getElementById('rmSL').value),r=e-sl;if(r>0)document.getElementById('rmResult').innerHTML=[1,2,3].map(x=>`<div style="display:flex;justify-content:space-between;"><span style="color:var(--text2)">1:${x}</span><span class="pos">₹${(e+x*r).toFixed(2)}</span></div>`).join('');}
+function runRM(){const e=n(document.getElementById('rmEntry').value),sl=n(document.getElementById('rmSL').value),r=e-sl;if(r>0)document.getElementById('rmResult').innerHTML=[1,2,3,4].map(x=>`<div style="display:flex;justify-content:space-between;"><span style="color:var(--text2)">1:${x} RR</span><span class="pos">₹${(e+x*r).toFixed(2)}</span></div>`).join('');}
 function runBR(){const b=n(document.getElementById('brBuy').value),s=n(document.getElementById('brSell').value),q=n(document.getElementById('brQty').value),br=n(document.getElementById('brBrok').value)/100;const g=(s-b)*q,t=(b*q+s*q)*br+s*q*0.001,net=g-t;document.getElementById('brResult').innerHTML=`<div style="font-weight:700;color:var(--accent);">Net: ${formatINR(net)}</div>`;}
 function runBE(){const e=n(document.getElementById('beEntry').value),q=n(document.getElementById('beQty').value),t=n(document.getElementById('beBrok').value)+n(document.getElementById('beTax').value);document.getElementById('beResult').innerHTML=`<div style="font-weight:700;color:var(--accent);">BE Price: ₹${(e+t/q).toFixed(2)}</div>`;}
 function runDD(){const dd=n(document.getElementById('ddPct').value),rec=dd>0?((100/(100-dd))-1)*100:0;document.getElementById('ddResult').innerHTML=`<div style="font-weight:700;color:var(--accent);">Recovery: ${rec.toFixed(1)}%</div>`;}
@@ -1494,22 +1427,8 @@ function updateChecklist(){
 }
 function resetChecklist(){document.querySelectorAll('#checklistItems input[type=checkbox]').forEach(b=>b.checked=false);updateChecklist();}
 
-function saveReview(){
-  const week=document.getElementById('reviewWeek').value.trim();if(!week)return;
-  const review = {id:Date.now(),week,mood:document.getElementById('reviewMood').value,well:document.getElementById('reviewWell').value,wrong:document.getElementById('reviewWrong').value,lesson:document.getElementById('reviewLesson').value,focus:document.getElementById('reviewFocus').value};
-  weeklyReviews.unshift(review);
-  localStorage.setItem('td_reviews',JSON.stringify(weeklyReviews));
-  renderReviews();
-}
-function deleteReview(id){weeklyReviews=weeklyReviews.filter(r=>r.id!==id);localStorage.setItem('td_reviews',JSON.stringify(weeklyReviews));renderReviews();}
-function renderReviews(){
-  const c=document.getElementById('reviewHistory');
-  if(!weeklyReviews.length){c.innerHTML='<div style="padding:24px;text-align:center;color:var(--text3);font-size:12px;">No reviews yet.</div>';return;}
-  c.innerHTML=weeklyReviews.map(r=>`<div class="review-entry"><div class="review-entry-date"><b style="color:var(--accent)">${r.week}</b> <span style="margin-left:10px;padding:2px 7px;border-radius:4px;background:var(--bg4);font-size:9px;">${r.mood}</span> <button onclick="deleteReview(${r.id})" style="float:right;background:none;border:none;color:var(--text3);cursor:pointer;font-family:var(--mono);">✕</button></div><div class="review-entry-content">${r.lesson?`<div>Lesson: ${r.lesson}</div>`:''}</div></div>`).join('');
-}
-
-window.onload=function(){renderReviews();loadData();};
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCalcModal();closeChecklistModal();}});
+window.onload=function(){loadData();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeChecklistModal();}});
 </script>
 </body>
 </html>
