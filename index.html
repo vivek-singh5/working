@@ -147,13 +147,13 @@ select:focus,input:focus{border-color:var(--accent);}
 
 .heatmap-wrap{overflow-x:auto;padding-bottom:8px;}
 .heatmap-grid{display:flex;gap:0;min-width:max-content;}
-.hm-month{display:flex;flex-direction:column;min-width:130px;border-right:1px solid var(--border);}
+.hm-month{display:flex;flex-direction:column;min-width:100px;border-right:1px solid var(--border);}
 .hm-month:last-child{border-right:none;}
-.hm-month-header{padding:10px 12px 6px;font-family:var(--mono);font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;background:var(--bg3);border-bottom:1px solid var(--border);}
-.hm-day-grid{display:flex;flex-direction:column;padding:4px;}
+.hm-month-header{padding:8px 6px 4px;font-family:var(--mono);font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;background:var(--bg3);border-bottom:1px solid var(--border);}
+.hm-day-grid{display:flex;flex-direction:column;padding:2px;}
 .hm-day-row{display:flex;align-items:center;gap:1px;margin-bottom:1px;}
-.hm-dow-label{width:28px;font-family:var(--mono);font-size:8px;color:var(--text3);text-align:center;flex-shrink:0;}
-.hm-cell{width:22px;height:22px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:8px;font-weight:600;cursor:default;position:relative;transition:transform .1s;}
+.hm-dow-label{width:22px;font-family:var(--mono);font-size:8px;color:var(--text3);text-align:center;flex-shrink:0;}
+.hm-cell{width:18px;height:18px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:7px;font-weight:600;cursor:default;position:relative;transition:transform .1s;}
 .hm-cell:hover{transform:scale(1.2);z-index:10;}
 .hm-cell-empty{background:transparent;}
 .hm-cell-none{background:var(--bg3);color:var(--text3);}
@@ -162,12 +162,12 @@ select:focus,input:focus{border-color:var(--accent);}
 .hm-cell-breakeven{background:rgba(234,179,8,0.35);color:#eab308;}
 .hm-cell-small-loss{background:rgba(244,63,94,0.25);color:var(--red);}
 .hm-cell-large-loss{background:rgba(244,63,94,0.75);color:#fff;}
-.hm-month-footer{padding:8px 12px;border-top:1px solid var(--border);background:var(--bg3);display:flex;flex-direction:column;gap:3px;}
-.hm-footer-meta{font-family:var(--mono);font-size:9px;color:var(--text3);}
+.hm-month-footer{padding:6px 6px;border-top:1px solid var(--border);background:var(--bg3);display:flex;flex-direction:column;gap:2px;}
+.hm-footer-meta{font-family:var(--mono);font-size:8px;color:var(--text3);}
 .hm-legend{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px;}
 .hm-legend-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;color:var(--text3);}
 .hm-legend-dot{width:12px;height:12px;border-radius:2px;}
-.hm-tooltip{position:fixed;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:8px 12px;font-family:var(--mono);font-size:10px;pointer-events:none;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.4);}
+.hm-tooltip{position:fixed;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:10px 14px;font-family:var(--mono);font-size:10px;pointer-events:none;z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.4);max-width:280px;}
 
 ::-webkit-scrollbar{width:5px;height:5px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
@@ -333,6 +333,7 @@ select:focus,input:focus{border-color:var(--accent);}
   </div>
 </div>
 
+<!-- ANALYTICS TAB -->
 <div class="tab-panel" id="tab-analytics">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
     <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;">Analytics Filter</div>
@@ -536,7 +537,6 @@ select:focus,input:focus{border-color:var(--accent);}
     </div>
     <button class="btn btn-accent" onclick="saveReview()" style="margin-top:14px;">SAVE REVIEW</button>
   </div>
-  <div class="slabel">📚 Review History</div>
   <div id="reviewHistory"></div>
 </div>
 
@@ -593,7 +593,6 @@ select:focus,input:focus{border-color:var(--accent);}
   <div class="modal" style="max-width:600px;">
     <button class="modal-close" onclick="closeChecklistModal()">×</button>
     <h2 style="font-size:18px;margin-bottom:6px;font-weight:700;">Pre-Trade Checklist</h2>
-    <p style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:14px;">Complete before entering any trade. Don't cheat yourself.</p>
     <div class="checklist-progress"><div class="checklist-bar" id="checklistBar" style="width:0%"></div></div>
     <div id="checklistItems"></div>
     <div style="margin-top:14px;padding:12px;background:var(--bg3);border-radius:var(--r);font-family:var(--mono);font-size:11px;color:var(--text2);">
@@ -1334,6 +1333,9 @@ function renderHeatmap(){
     col.appendChild(hdr);
     const dayGrid = document.createElement('div');
     dayGrid.className = 'hm-day-grid';
+    
+    let moPnl=0, moCount=0, moWins=0;
+
     DOW.forEach((dName, dIdx)=>{
       const row = document.createElement('div');
       row.className = 'hm-day-row';
@@ -1341,32 +1343,52 @@ function renderHeatmap(){
       for(let w=0; w<6; w++){
         const week = weeks[w];
         let dayNum = null;
-        if(week){
-          dayNum = week.find(dNum => {
-            const date = new Date(yr, m, dNum);
-            return (date.getDay()-1) === dIdx;
-          });
-        }
+        if(week){ dayNum = week.find(dNum => (new Date(yr, m, dNum).getDay()-1) === dIdx); }
         if(!dayNum){ row.innerHTML += `<div class="hm-cell hm-cell-empty"></div>`; }
         else {
           const key = `${yr}-${m+1}-${dayNum}`;
           const ts = tradeDateMap[key] || [];
           const pnl = ts.reduce((a,t)=>a+calcPnL(t),0);
           const cls = ts.length===0 ? 'hm-cell-none' : cellClass(pnl);
-          row.innerHTML += `<div class="hm-cell ${cls}" onmouseenter="showHmTooltip(event,'${dayNum} ${mo.toLocaleString('default',{month:'short'})}',${pnl},${ts.length})" onmouseleave="hideHmTooltip()">${dayNum}</div>`;
+          moPnl += pnl; moCount += ts.length; moWins += ts.filter(t=>calcPnL(t)>0).length;
+
+          // Tooltip Data Build
+          const tsString = ts.map(t => {
+              const tpnl = calcPnL(t);
+              const tpct = calcPctMove(t);
+              const color = tpnl >= 0 ? '#10b981' : '#f43f5e';
+              return `<div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:2px;">
+                        <span style="color:#f1f5f9;font-weight:500;">${t.Symbol}</span>
+                        <span style="color:${color};font-weight:600;">${tpnl>=0?'+':''}${tpnl.toFixed(0)} (${tpct.toFixed(1)}%)</span>
+                      </div>`;
+          }).join('');
+
+          row.innerHTML += `<div class="hm-cell ${cls}" onmouseenter="showHmTooltip(event,'${dayNum} ${mo.toLocaleString('default',{month:'short'})}',${pnl},${ts.length},'${btoa(tsString)}')" onmouseleave="hideHmTooltip()">${dayNum}</div>`;
         }
       }
       dayGrid.appendChild(row);
     });
     col.appendChild(dayGrid);
+
+    const footer = document.createElement('div');
+    footer.className = 'hm-month-footer';
+    footer.innerHTML=`<div style="font-size:9px;font-weight:700;margin-bottom:2px;" class="${moPnl>=0?'pos':'neg'}">${moCount ? formatINR(moPnl) : '—'}</div>
+                      <div class="hm-footer-meta">${moCount} trades · ${moCount ? Math.round(moWins/moCount*100)+'%' : '—'}</div>`;
+    col.appendChild(footer);
+
     grid.appendChild(col);
   });
 }
 
-function showHmTooltip(e, dateStr, pnl, count){
+function showHmTooltip(e, dateStr, pnl, count, tsBase64){
   const tt = document.getElementById('hmTooltip');
+  const tsHtml = atob(tsBase64);
   tt.style.display='block'; tt.style.left=(e.clientX+12)+'px'; tt.style.top=(e.clientY+12)+'px';
-  tt.innerHTML=`<b>${dateStr}</b><br><span class="${pnl>=0?'pos':'neg'}">${formatINR(pnl)}</span><br>${count} trades`;
+  tt.innerHTML=`<div style="border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:6px;margin-bottom:8px;">
+                  <b style="color:#94a3b8;font-size:9px;text-transform:uppercase;letter-spacing:0.05em;">${dateStr}</b><br>
+                  <span class="${pnl>=0?'pos':'neg'}" style="font-size:13px;font-weight:700;">${formatINR(pnl)}</span>
+                </div>
+                ${tsHtml || '<div style="color:#64748b">No trades</div>'}`;
 }
 function hideHmTooltip(){ document.getElementById('hmTooltip').style.display='none'; }
 
@@ -1432,7 +1454,8 @@ function resetChecklist(){document.querySelectorAll('#checklistItems input[type=
 
 function saveReview(){
   const week=document.getElementById('reviewWeek').value.trim();if(!week)return;
-  weeklyReviews.unshift({id:Date.now(),week,mood:document.getElementById('reviewMood').value,well:document.getElementById('reviewWell').value,wrong:document.getElementById('reviewWrong').value,lesson:document.getElementById('reviewLesson').value,focus:document.getElementById('reviewFocus').value});
+  const review = {id:Date.now(),week,mood:document.getElementById('reviewMood').value,well:document.getElementById('reviewWell').value,wrong:document.getElementById('reviewWrong').value,lesson:document.getElementById('reviewLesson').value,focus:document.getElementById('reviewFocus').value};
+  weeklyReviews.unshift(review);
   localStorage.setItem('td_reviews',JSON.stringify(weeklyReviews));
   renderReviews();
 }
