@@ -244,7 +244,7 @@ select:focus,input:focus{border-color:var(--accent);}
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
     <div class="date-filter-wrap" id="heatmapFilterWrap">
       <div class="date-filter-btn" onclick="toggleDateFilter('heatmap')">
-        <span>📅</span><span id="heatmapFilterLabel">Last 12 Months</span><span class="arrow" id="heatmapFilterArrow">▼</span>
+        <span>📅</span><span id="heatmapFilterLabel">FY 2026-27</span><span class="arrow" id="heatmapFilterArrow">▼</span>
       </div>
       <div class="date-filter-dropdown" id="heatmapFilterDropdown">
         <div class="dfd-option" onclick="applyDatePreset('heatmap','all',this)">All time</div>
@@ -567,7 +567,7 @@ let currentCalDate = new Date(2026, 3, 1);
 const dateFilters = {
   overview:  { type: 'all', from: null, to: null },
   analytics: { type: 'all', from: null, to: null },
-  heatmap:   { type: '12mo', from: null, to: null },
+  heatmap:   { type: 'fy2627', from: null, to: null },
 };
 
 const n = v => parseFloat(String(v||'').replace(/[,₹\s%]/g,''))||0;
