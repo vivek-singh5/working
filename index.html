@@ -71,6 +71,51 @@ th{background:var(--bg3);padding:10px 14px;text-align:left;color:var(--text3);fo
 td{padding:10px 14px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px;white-space:nowrap;}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:rgba(255,255,255,0.015);}
+tr.row-2r-hit td{background:rgba(234,179,8,0.13)!important;}
+tr.row-be-locked td{background:rgba(16,185,129,0.13)!important;}
+
+/* ── NEW: 4R row states ───────────────────────────────────────────────────── */
+tr.row-4r-alert td{background:rgba(251,146,60,0.10)!important;}
+tr.row-4r-booked td{background:rgba(139,92,246,0.12)!important;}
+
+/* pulsing glow on the entire alert row */
+tr.row-4r-alert{
+  animation:fourRGlow 1.6s ease-in-out infinite;
+  outline:1px solid rgba(251,146,60,0.0);
+}
+@keyframes fourRGlow{
+  0%,100%{box-shadow:inset 0 0 0px rgba(251,146,60,0);}
+  50%{box-shadow:inset 0 0 18px rgba(251,146,60,0.28);}
+}
+
+/* 4R badge — shown in symbol cell */
+.badge-4r-alert{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:2px 7px;border-radius:20px;
+  background:rgba(251,146,60,0.18);
+  border:1px solid rgba(251,146,60,0.55);
+  color:#fb923c;font-size:9px;font-weight:700;
+  font-family:var(--mono);letter-spacing:0.04em;
+  animation:badgePulse 1.4s ease-in-out infinite;
+  vertical-align:middle;margin-left:5px;
+}
+@keyframes badgePulse{
+  0%,100%{opacity:1;transform:scale(1);}
+  50%{opacity:0.7;transform:scale(1.06);}
+}
+
+/* 4R badge — booked state */
+.badge-4r-booked{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:2px 7px;border-radius:20px;
+  background:rgba(139,92,246,0.15);
+  border:1px solid rgba(139,92,246,0.4);
+  color:#a78bfa;font-size:9px;font-weight:700;
+  font-family:var(--mono);letter-spacing:0.04em;
+  vertical-align:middle;margin-left:5px;
+}
+/* ─────────────────────────────────────────────────────────────────────────── */
+
 .pos{color:var(--green);}.neg{color:var(--red);}.neu{color:var(--text2);}
 select,input[type=text],input[type=number],input[type=date]{background:var(--bg3);color:var(--text);border:1px solid var(--border2);padding:7px 10px;border-radius:var(--r);font-family:var(--mono);font-size:11px;outline:none;transition:border-color .15s;}
 select:focus,input:focus{border-color:var(--accent);}
@@ -214,6 +259,12 @@ select:focus,input:focus{border-color:var(--accent);}
       <div id="livePriceBadge" class="live-badge live" style="margin-left:6px;">
         <div class="live-dot"></div><span id="livePriceStatus">Powered by GoogleFinance</span>
       </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:9px;color:var(--text3);flex-wrap:wrap;">
+        <span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(234,179,8,0.4);border:1px solid rgba(234,179,8,0.6);"></span>2R Hit — move SL to BE</span>
+        <span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(16,185,129,0.3);border:1px solid rgba(16,185,129,0.5);"></span>SL at BE — protected</span>
+        <span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(251,146,60,0.3);border:1px solid rgba(251,146,60,0.6);"></span>4R Hit — book 1/3 now!</span>
+        <span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(139,92,246,0.3);border:1px solid rgba(139,92,246,0.5);"></span>4R + 1/3 booked ✓</span>
+      </div>
     </div>
     <table>
       <thead><tr>
@@ -335,7 +386,7 @@ select:focus,input:focus{border-color:var(--accent);}
         <div class="dfd-option" onclick="applyDatePreset('analytics','week',this)">This week</div>
         <div class="dfd-option" onclick="applyDatePreset('analytics','month',this)">This month</div>
         <div class="dfd-option" onclick="applyDatePreset('analytics','ytd',this)">This year (YTD)</div>
-        <div class="dfd-option" onclick="applyDatePreset('analytics','fy2526',this)">FY 2025-26</div>
+        <div class="dfd-option" onclick="applyDatePreset('analytics','fy2526',this)">FY 2525-26</div>
         <div class="dfd-option" onclick="applyDatePreset('analytics','fy2627',this)">FY 2026-27</div>
         <div class="dfd-divider"></div>
         <div class="dfd-custom">
@@ -848,6 +899,43 @@ function renderOpenPositions(){
     const val=entry*qty;
     const distSL=(ltp&&sl&&entry)?((ltp-sl)/ltp*100):null;
     const slBreached=ltp&&sl&&ltp<=sl;
+
+    // ── 2R & BE highlight logic (unchanged) ──────────────────────────────────
+    const ldh = n(t['Latest day high']);
+    const riskUnit = Math.abs(entry - sl);
+    const twoRHit = ldh > 0 && entry > 0 && sl > 0 && (ldh - entry) >= 2 * riskUnit;
+    const beSet   = sl > 0 && entry > 0 && sl >= entry;
+
+    // ── NEW: 4R logic ─────────────────────────────────────────────────────────
+    const fourRHit    = ldh > 0 && entry > 0 && sl > 0 && (ldh - entry) >= 4 * riskUnit;
+    const hasBookedX1 = n(t.QX1) > 0;   // QX1 > 0 means partial has been booked
+
+    // Row state priority: beSet > fourR booked > fourR alert > twoRHit
+    let rowCls = '';
+    if      (beSet)                        rowCls = 'row-be-locked';
+    else if (fourRHit && hasBookedX1)      rowCls = 'row-4r-booked';
+    else if (fourRHit && !hasBookedX1)     rowCls = 'row-4r-alert';
+    else if (twoRHit)                      rowCls = 'row-2r-hit';
+    // ─────────────────────────────────────────────────────────────────────────
+
+    // Symbol badge for 4R state
+    let symBadge = '';
+    if (fourRHit && !hasBookedX1 && !beSet) {
+      symBadge = `<span class="badge-4r-alert">🔥 4R — BOOK NOW</span>`;
+    } else if (fourRHit && hasBookedX1 && !beSet) {
+      symBadge = `<span class="badge-4r-booked">✅ 1/3 BOOKED</span>`;
+    }
+
+    // Remaining qty: QE minus any qty already sold (QX1 + QX2 + QX3)
+    const soldQty = n(t.QX1) + n(t.QX2) + n(t.QX3);
+    const remainingQty = qty - soldQty;
+    const qtyDisplay = soldQty > 0
+      ? `<span style="color:var(--text2);">${remainingQty.toLocaleString()}</span><span style="font-size:9px;color:var(--text3);margin-left:3px;">(${qty} − ${soldQty})</span>`
+      : qty.toLocaleString();
+
+    // Invested uses remaining qty for open MTM display
+    const valRemaining = entry * remainingQty;
+
     let ltpCell=!ltp ? `—` : `₹${ltp.toFixed(2)}`;
     let dayCell=dayChgPct!==0 ? `<span style="color:${dayChgPct>=0?'var(--green)':'var(--red)'};">${dayChgPct>=0?'▲':'▼'} ${Math.abs(dayChgPct).toFixed(2)}%</span>` : `<span style="color:var(--text3);">—</span>`;
     let slCell=slBreached
@@ -855,8 +943,8 @@ function renderOpenPositions(){
       : distSL!==null
         ? `<span style="color:${distSL<3?'var(--red)':distSL<6?'var(--accent)':'var(--text2)'};">${distSL.toFixed(2)}%</span>`
         : `—`;
-    return `<tr>
-      <td><b>${sym||'—'}</b></td>
+    return `<tr class="${rowCls}">
+      <td><b>${sym||'—'}</b>${symBadge}</td>
       <td>${t.Setup||'—'}</td>
       <td>${t['Entry Date']||'—'}</td>
       <td>₹${entry.toFixed(2)}</td>
@@ -864,8 +952,8 @@ function renderOpenPositions(){
       <td>${slCell}</td>
       <td>${ltpCell}</td>
       <td>${dayCell}</td>
-      <td>${qty.toLocaleString()}</td>
-      <td>₹${val.toLocaleString('en-IN',{maximumFractionDigits:0})}</td>
+      <td>${qtyDisplay}</td>
+      <td>₹${valRemaining.toLocaleString('en-IN',{maximumFractionDigits:0})}</td>
       <td class="${pnl>=0?'pos':'neg'}">${ltp?formatINR(pnl):'—'}</td>
       <td class="${pct>=0?'pos':'neg'}">${ltp?pct.toFixed(2)+'%':'—'}</td>
     </tr>`;
@@ -1073,7 +1161,6 @@ function renderMAEMFEETD(closed){
   renderETD(closed);
 }
 
-// DETAILED MAE SUMMARY RESTORED
 function renderMAE(closed){
   const withMAE=closed.filter(t=>n(t.MAE)!==0); 
   const ctx=document.getElementById('maeChart').getContext('2d');
@@ -1116,7 +1203,6 @@ function renderMAE(closed){
     </div>`;
 }
 
-// DETAILED MFE SUMMARY RESTORED
 function renderMFE(closed){
   const withMFE=closed.filter(t=>n(t.MFE)>0);
   const ctx=document.getElementById('mfeChart').getContext('2d');
@@ -1162,7 +1248,6 @@ function renderMFE(closed){
     </div>`;
 }
 
-// DETAILED ETD SUMMARY RESTORED
 function renderETD(closed){
   const withETD=closed.filter(t=>n(t.ETD)>0&&n(t.MFE)>0);
   const ctx=document.getElementById('etdChart').getContext('2d');
