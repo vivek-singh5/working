@@ -242,7 +242,7 @@ select:focus,input:focus{border-color:var(--accent);}
         <th>ENTRY</th><th>INIT SL</th><th>TRAIL SL</th><th>DIST TO SL</th>
         <th>CMP</th><th>DAY CHG</th>
         <th>QTY (REM)</th><th>INVESTED</th><th>MTM P&L</th><th>% MOVE</th>
-        <th>R-TARGETS</th>
+        <th>CURRENT R</th>
       </tr></thead>
       <tbody id="openTradeLog"></tbody>
     </table>
@@ -887,11 +887,8 @@ function renderOpenPositions(){
     const slBreached=ltp&&activeSL&&ltp<=activeSL;
 
     // ── R-target prices from Initial SL ──────────────────────────────────────
+    // ── Risk Unit Calculation ────────────────────────────────────────────────
     const riskUnit=Math.abs(entry-initSL);
-    const r1Price=entry+1*riskUnit;
-    const r2Price=entry+2*riskUnit;
-    const r3Price=entry+3*riskUnit;
-    const r4Price=entry+4*riskUnit;
 
     // ── Row highlight logic ───────────────────────────────────────────────────
     // Use "Latest day high" for milestone detection
@@ -930,12 +927,14 @@ function renderOpenPositions(){
         :`—`;
 
     // ── R-targets display ─────────────────────────────────────────────────────
-    const rTargetsCell=riskUnit>0?`<div class="r-target-cell">
-      <span class="r-chip r-chip-1">1R ₹${r1Price.toFixed(2)}</span>
-      <span class="r-chip r-chip-2">2R ₹${r2Price.toFixed(2)}</span>
-      <span class="r-chip r-chip-3">3R ₹${r3Price.toFixed(2)}</span>
-      <span class="r-chip r-chip-4">4R ₹${r4Price.toFixed(2)}</span>
-    </div>`:`—`;
+    // ── Current R display ─────────────────────────────────────────────────────
+    let currentRCell = '—';
+    if (ltp && riskUnit > 0) {
+      const currentR = (ltp - entry) / riskUnit;
+      // Colors dynamically based on R multiple (Red for loss, White for 0-1R, Purple for 1-2R, Green for 2R+)
+      const rColor = currentR >= 2 ? 'var(--green)' : currentR >= 1 ? 'var(--accent)' : currentR >= 0 ? 'var(--text)' : 'var(--red)';
+      currentRCell = `<span style="color:${rColor}; font-weight:700;">${currentR.toFixed(2)}R</span>`;
+    }
 
     return `<tr class="${rowCls}">
       <td><b>${sym||'—'}</b>${symBadge}</td>
@@ -951,7 +950,7 @@ function renderOpenPositions(){
       <td>₹${valRemaining.toLocaleString('en-IN',{maximumFractionDigits:0})}</td>
       <td class="${pnl>=0?'pos':'neg'}">${ltp?formatINR(pnl):'—'}</td>
       <td class="${pct>=0?'pos':'neg'}">${ltp?pct.toFixed(2)+'%':'—'}</td>
-      <td>${rTargetsCell}</td>
+      <td>${currentRCell}</td>
     </tr>`;
   }).join('');
 }
