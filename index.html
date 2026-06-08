@@ -1025,14 +1025,32 @@ function renderStreak(closed){
     return `<div class="streak-dot" style="background:${bg};border:1px solid ${border};color:${color};" title="${t.Symbol}: ${formatINR(pnl)}">${isWin?'W':'L'}</div>`;
   }).join('');
 
-  let cur=0,curT='',lng=0,lngT='';
-  [...closed].reverse().forEach((t,i)=>{
-    const w=calcPnL(t)>0;
-    if(i===0){cur=1;curT=w?'W':'L';}
-    else if((curT==='W'&&w)||(curT==='L'&&!w)) cur++;
-    else{if(cur>lng){lng=cur;lngT=curT;}cur=1;curT=w?'W':'L';}
-  });
-  if(cur>lng){lng=cur;lngT=curT;}
+  // Current streak — stop as soon as it breaks
+  let cur = 0;
+  const latestIsWin = closed.length ? calcPnL(closed[closed.length - 1]) > 0 : true;
+  for(let i = closed.length - 1; i >= 0; i--){
+    const w = calcPnL(closed[i]) > 0;
+    if(w === latestIsWin) cur++;
+    else break;
+  }
+  const curT = latestIsWin ? 'W' : 'L';
+
+  // Longest streak — full scan
+  let lng = 0, lngT = '';
+  if(closed.length){
+    let tmpLen = 1, tmpT = calcPnL(closed[0]) > 0 ? 'W' : 'L';
+    for(let i = 1; i < closed.length; i++){
+      const t = calcPnL(closed[i]) > 0 ? 'W' : 'L';
+      if(t === tmpT){
+        tmpLen++;
+      } else {
+        if(tmpLen > lng){ lng = tmpLen; lngT = tmpT; }
+        tmpLen = 1; tmpT = t;
+      }
+    }
+    if(tmpLen > lng){ lng = tmpLen; lngT = tmpT; }
+  }
+
   document.getElementById('streakSummary').innerHTML=
     `<span style="color:var(--text2)">Current streak: </span>`+
     `<b style="color:${curT==='W'?'var(--green)':'var(--red)'}">${cur} ${curT==='W'?'Wins':'Losses'}</b>`+
@@ -1042,16 +1060,23 @@ function renderStreak(closed){
 
 function renderStreakAlert(closed){
   const banner=document.getElementById('streakAlert');
-  let streak=0;
-  [...closed].reverse().forEach((t,i)=>{
-    const w=calcPnL(t)>0;
-    if(i===0) streak=w?1:-1;
-    else if((streak>0&&w)||(streak<0&&!w)) streak+=w?1:-1;
-  });
-  if(streak<=-3){
+  if(!closed.length){ banner.classList.remove('show'); return; }
+
+  let streak = 0;
+  const firstWin = calcPnL(closed[closed.length - 1]) > 0;
+  for(let i = closed.length - 1; i >= 0; i--){
+    const w = calcPnL(closed[i]) > 0;
+    if(w === firstWin) streak++;
+    else break;
+  }
+
+  if(!firstWin && streak >= 3){
     banner.classList.add('show');
-    document.getElementById('streakAlertMsg').textContent=`You are on a ${Math.abs(streak)}-loss streak. Review before entering a new position.`;
-  } else banner.classList.remove('show');
+    document.getElementById('streakAlertMsg').textContent=
+      `You are on a ${streak}-loss streak. Review before entering a new position.`;
+  } else {
+    banner.classList.remove('show');
+  }
 }
 
 function renderEquity(closed){
