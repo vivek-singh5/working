@@ -1123,7 +1123,7 @@ function renderHOF(closed){
 
 function renderInsightTable(){
   const gb=document.getElementById('insightGroupBy').value;
-  const closed=filterClosedByScope('analytics');
+  const closed=filterClosedByScope('overview');
   document.getElementById('insightKeyHeader').textContent=gb==='month'?'PERIOD':'STRATEGY';
   const groups={};
   closed.forEach(t=>{
