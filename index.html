@@ -828,16 +828,21 @@ function updatePortfolioKPIs(){
   const deployed=open.reduce((a,t)=>a+n(t.Entry)*n(t.QE),0);
   const pctInvested=open.reduce((a,t)=>a+n(t['Position Size']),0);
   const mtm=open.reduce((a,t)=>{
-    const ltp=n(t.CMP)||n(t.Entry);
+    const ltp=n(t.CMP);
+    if(!ltp) return a;
     const soldQty=n(t.QX1)+n(t.QX2)+n(t.QX3);
     const remQty=n(t.QE)-soldQty;
-    return a+(ltp-n(t.Entry))*remQty;
+    const bookedPnl=(n(t.QX1)?((n(t.X1)-n(t.Entry))*n(t.QX1)):0)
+                   +(n(t.QX2)?((n(t.X2)-n(t.Entry))*n(t.QX2)):0)
+                   +(n(t.QX3)?((n(t.X3)-n(t.Entry))*n(t.QX3)):0);
+    return a+(ltp-n(t.Entry))*remQty+bookedPnl;
   },0);
   const maxRisk=open.reduce((a,t)=>{
     const activeSL=n(t['Trailing SL'])||n(t['Initial SL'])||n(t.SL)||0;
     const soldQty=n(t.QX1)+n(t.QX2)+n(t.QX3);
     const remQty=n(t.QE)-soldQty;
-    return a+(activeSL-n(t.Entry))*remQty;
+    const slRisk=(activeSL-n(t.Entry))*remQty; // negative = downside risk
+    return a+Math.min(slRisk,0); // only count positions still at risk; BE/profit-locked = 0
   },0);
   const slBreaches=open.filter(t=>{
     const ltp=n(t.CMP);
