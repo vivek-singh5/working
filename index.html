@@ -248,24 +248,6 @@ select:focus,input:focus{border-color:var(--accent);}
     </table>
   </div>
 
-  <div class="slabel">🔬 Strategy Deep Dive</div>
-  <div style="margin-bottom:12px;">
-    <select id="insightGroupBy" onchange="renderInsightTable()">
-      <option value="month">Group by Month</option>
-      <option value="setup">Group by Setup</option>
-    </select>
-  </div>
-  <div class="table-wrap" style="margin-bottom:20px;">
-    <table>
-      <thead><tr>
-        <th id="insightKeyHeader">PERIOD</th><th>NET P&L</th><th>TRADES</th>
-        <th>WIN %</th><th>AVG R:R</th><th>GROSS WIN</th><th>GROSS LOSS</th>
-        <th>PROFIT FACTOR</th><th>AVG WIN %</th><th>AVG LOSS %</th>
-      </tr></thead>
-      <tbody id="insightBody"></tbody>
-    </table>
-  </div>
-
   <div class="slabel">🔥 Recent Streak</div>
   <div class="card" style="margin-bottom:20px;">
     <div class="card-title" style="justify-content:space-between;">
@@ -318,6 +300,24 @@ select:focus,input:focus{border-color:var(--accent);}
     <div class="heatmap-wrap">
       <div class="heatmap-grid" id="heatmapGrid"></div>
     </div>
+  </div>
+
+  <div class="slabel">🔬 Strategy Deep Dive</div>
+  <div style="margin-bottom:12px;">
+    <select id="insightGroupBy" onchange="renderInsightTable()">
+      <option value="month">Group by Month</option>
+      <option value="setup">Group by Setup</option>
+    </select>
+  </div>
+  <div class="table-wrap" style="margin-bottom:20px;">
+    <table>
+      <thead><tr>
+        <th id="insightKeyHeader">PERIOD</th><th>NET P&L</th><th>TRADES</th>
+        <th>WIN %</th><th>AVG R:R</th><th>GROSS WIN</th><th>GROSS LOSS</th>
+        <th>PROFIT FACTOR</th><th>AVG WIN %</th><th>AVG LOSS %</th>
+      </tr></thead>
+      <tbody id="insightBody"></tbody>
+    </table>
   </div>
 
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
