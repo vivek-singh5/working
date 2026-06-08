@@ -830,14 +830,14 @@ function updatePortfolioKPIs(){
   const mtm=open.reduce((a,t)=>{
     const ltp=n(t.CMP)||n(t.Entry);
     const soldQty=n(t.QX1)+n(t.QX2)+n(t.QX3);
-    const remainingQty=n(t.QE)-soldQty;
-    return a+(ltp-n(t.Entry))*remainingQty;
+    const remQty=n(t.QE)-soldQty;
+    return a+(ltp-n(t.Entry))*remQty;
   },0);
   const maxRisk=open.reduce((a,t)=>{
-    const sl=n(t['Trailing SL'])||n(t['Initial SL'])||n(t.SL)||0;
+    const activeSL=n(t['Trailing SL'])||n(t['Initial SL'])||n(t.SL)||0;
     const soldQty=n(t.QX1)+n(t.QX2)+n(t.QX3);
-    const remainingQty=n(t.QE)-soldQty;
-    return a+(sl-n(t.Entry))*remainingQty;
+    const remQty=n(t.QE)-soldQty;
+    return a+(activeSL-n(t.Entry))*remQty;
   },0);
   const slBreaches=open.filter(t=>{
     const ltp=n(t.CMP);
