@@ -33,6 +33,12 @@
   --purple:#9d7df0;
   --purple-dim:rgba(157,125,240,0.14);
 
+  /* RGB variants for dynamic alphas */
+  --green-rgb: 31, 184, 138;
+  --red-rgb: 239, 79, 99;
+  --gold-rgb: 230, 154, 31;
+  --purple-rgb: 157, 125, 240;
+
   --text:#1c2733;
   --text2:#5b6c80;
   --text3:#94a3b5;
@@ -45,13 +51,12 @@
   --r:10px;--r2:18px;--r3:26px;
   --ease:cubic-bezier(0.16,1,0.3,1);
 
-  --glass-blur:20px;
+  --glass-blur:12px; /* Optimized from 20px for better performance */
   --glass-border:rgba(255,255,255,0.65);
   --glass-shadow:0 8px 32px rgba(120,140,170,0.18), inset 0 1px 0 rgba(255,255,255,0.6);
   --glass-shadow-hover:0 14px 44px rgba(110,130,165,0.24), inset 0 1px 0 rgba(255,255,255,0.7);
   --specular:linear-gradient(135deg,rgba(255,255,255,0.85) 0%,rgba(255,255,255,0.15) 35%,rgba(255,255,255,0.02) 60%);
 
-  /* Chart / tooltip helper tokens (light) */
   --chart-grid:rgba(120,140,170,0.12);
   --chart-tick:#94a3b5;
   --chart-tick2:#5b6c80;
@@ -60,34 +65,49 @@
 }
 
 [data-theme="dark"]{
-  --ink:#0c1420;
-  --glass:rgba(28,40,58,0.55);
-  --surface:rgba(34,48,68,0.45);
-  --rim:rgba(255,255,255,0.10);
-  --rim2:rgba(255,255,255,0.14);
-  --frost:rgba(255,255,255,0.04);
+  --ink:#0b111a;
+  --glass:rgba(25, 35, 50, 0.65); /* Darker glass for contrast */
+  --surface:rgba(40, 55, 75, 0.55);
+  --rim:rgba(255,255,255,0.15);
+  --rim2:rgba(255,255,255,0.22);
+  --frost:rgba(255,255,255,0.06);
 
-  --text:#eaf1fb;
-  --text2:#9fb1c8;
-  --text3:#5c7088;
+  /* Brighter text colors to fix blending */
+  --text:#ffffff;
+  --text2:#cbd5e1;
+  --text3:#94a3b8;
 
-  --accent:#5ba2ff;
-  --cyan:#3ad2ff;
-  --glow-accent:rgba(91,162,255,0.18);
-  --glow-cyan:rgba(58,210,255,0.14);
+  --accent:#60a5fa;
+  --cyan:#38bdf8;
+  --glow-accent:rgba(96,165,250,0.18);
+  --glow-cyan:rgba(56,189,248,0.14);
 
-  --glass-blur:22px;
+  /* Brighter functional colors for dark mode */
+  --green: #34d399; 
+  --green-dim: rgba(52,211,153,0.12);
+  --red: #fb7185;
+  --red-dim: rgba(251,113,133,0.12);
+  --gold: #fbbf24;
+  --gold-dim: rgba(251,191,36,0.12);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,0.12);
+
+  --green-rgb: 52, 211, 153;
+  --red-rgb: 251, 113, 133;
+  --gold-rgb: 251, 191, 36;
+  --purple-rgb: 167, 139, 250;
+
+  --glass-blur:12px;
   --glass-border:rgba(255,255,255,0.12);
   --glass-shadow:0 8px 36px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
   --glass-shadow-hover:0 16px 50px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.09);
   --specular:linear-gradient(135deg,rgba(255,255,255,0.10) 0%,rgba(255,255,255,0.02) 35%,rgba(255,255,255,0) 60%);
 
-  /* Chart / tooltip helper tokens (dark) */
   --chart-grid:rgba(255,255,255,0.08);
-  --chart-tick:#5c7088;
-  --chart-tick2:#9fb1c8;
+  --chart-tick:#94a3b8;
+  --chart-tick2:#cbd5e1;
   --tooltip-bg:rgba(20,30,46,0.95);
-  --tooltip-border:rgba(91,162,255,0.35);
+  --tooltip-border:rgba(96,165,250,0.35);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -118,7 +138,7 @@ body{
     linear-gradient(160deg, #0a1018 0%, #0e1726 55%, #101b2c 100%);
 }
 
-/* Ambient background radial (kept as extra atmospheric layer) */
+/* Ambient background radial */
 body::before{
   content:'';
   position:fixed;
@@ -138,21 +158,18 @@ body::before{
     radial-gradient(ellipse 80% 40% at 50% 100%,rgba(31,184,138,0.04),transparent);
 }
 
-/* Subtle noise texture overlay */
+/* Subtle noise texture overlay - optimized for performance (removed mix-blend-mode) */
 body::after{
   content:'';
   position:fixed;
   inset:0;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
   pointer-events:none;
   z-index:0;
-  opacity:0.35;
-  mix-blend-mode:overlay;
+  opacity:0.04;
 }
-
 [data-theme="dark"] body::after{
-  opacity:0.5;
-  mix-blend-mode:soft-light;
+  opacity:0.06;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -211,8 +228,6 @@ header::before{
   display:flex;align-items:center;justify-content:center;
   font-size:19px;
   box-shadow:0 6px 18px rgba(58,139,253,0.25), inset 0 1px 0 rgba(255,255,255,0.8);
-  -webkit-backdrop-filter:blur(8px);
-  backdrop-filter:blur(8px);
   animation:iconPop .5s var(--ease) .1s both;
 }
 [data-theme="dark"] .logo-icon{
@@ -245,7 +260,7 @@ header::before{
 .nav-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:relative;z-index:1;}
 
 /* ═══════════════════════════════════════════════════════
-   BUTTONS — LIQUID GLASS PILLS
+   BUTTONS — OPTIMIZED (Removed nested blurs)
 ═══════════════════════════════════════════════════════ */
 .btn{
   position:relative;
@@ -256,9 +271,7 @@ header::before{
   font-size:10px;
   font-weight:600;
   border:1px solid var(--glass-border);
-  background:var(--surface);
-  -webkit-backdrop-filter:blur(12px) saturate(160%);
-  backdrop-filter:blur(12px) saturate(160%);
+  background:rgba(255, 255, 255, 0.45); /* optimized opacity */
   color:var(--text2);
   transition:all .25s var(--ease);
   letter-spacing:0.06em;
@@ -267,6 +280,7 @@ header::before{
   box-shadow:0 2px 8px rgba(120,140,170,0.12), inset 0 1px 0 rgba(255,255,255,0.5);
 }
 [data-theme="dark"] .btn{
+  background:rgba(40, 55, 80, 0.6);
   box-shadow:0 2px 8px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.06);
 }
 .btn::after{
@@ -286,7 +300,7 @@ header::before{
   box-shadow:0 8px 22px rgba(58,139,253,0.18), inset 0 1px 0 rgba(255,255,255,0.6);
 }
 [data-theme="dark"] .btn:hover{
-  box-shadow:0 8px 22px rgba(91,162,255,0.2), inset 0 1px 0 rgba(255,255,255,0.08);
+  box-shadow:0 8px 22px rgba(96,165,250,0.2), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 .btn:hover::after{opacity:0.85;}
 .btn:active{transform:translateY(0);}
@@ -306,7 +320,6 @@ header::before{
   transform:translateY(-2px);
 }
 
-/* Ripple on button click */
 .btn .ripple{
   position:absolute;
   border-radius:50%;
@@ -332,9 +345,7 @@ header::before{
   padding:6px 12px;
   border-radius:999px;
   background:var(--green-dim);
-  border:1px solid rgba(31,184,138,0.25);
-  -webkit-backdrop-filter:blur(10px);
-  backdrop-filter:blur(10px);
+  border:1px solid rgba(var(--green-rgb),0.25);
   box-shadow:inset 0 1px 0 rgba(255,255,255,0.4);
 }
 [data-theme="dark"] .status-pill{
@@ -349,7 +360,7 @@ header::before{
 }
 @keyframes pulse{
   0%,100%{box-shadow:0 0 4px var(--green);}
-  50%{box-shadow:0 0 12px var(--green),0 0 20px rgba(31,184,138,0.4);}
+  50%{box-shadow:0 0 12px var(--green),0 0 20px rgba(var(--green-rgb),0.4);}
 }
 .status-text{
   font-family:var(--mono);
@@ -360,7 +371,7 @@ header::before{
 }
 
 /* ═══════════════════════════════════════════════════════
-   TABS — LIQUID GLASS PILL BAR
+   TABS
 ═══════════════════════════════════════════════════════ */
 .tabs{
   display:flex;
@@ -392,7 +403,7 @@ header::before{
   z-index:0;
 }
 [data-theme="dark"] .tab-slider{
-  box-shadow:0 4px 16px rgba(91,162,255,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+  box-shadow:0 4px 16px rgba(96,165,250,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
 }
 .tab{
   position:relative;z-index:1;
@@ -448,11 +459,11 @@ header::before{
   box-shadow:0 0 8px rgba(58,139,253,0.4);
 }
 [data-theme="dark"] .slabel-line{
-  box-shadow:0 0 8px rgba(91,162,255,0.4);
+  box-shadow:0 0 8px rgba(96,165,250,0.4);
 }
 
 /* ═══════════════════════════════════════════════════════
-   KPI CARDS — LIQUID GLASS
+   KPI CARDS
 ═══════════════════════════════════════════════════════ */
 .kpi-row{
   display:flex;
@@ -499,7 +510,7 @@ header::before{
   box-shadow:var(--glass-shadow-hover), 0 0 0 1px rgba(58,139,253,0.12);
 }
 [data-theme="dark"] .kpi:hover{
-  box-shadow:var(--glass-shadow-hover), 0 0 0 1px rgba(91,162,255,0.15);
+  box-shadow:var(--glass-shadow-hover), 0 0 0 1px rgba(96,165,250,0.15);
 }
 .kpi:hover::after{opacity:1;}
 
@@ -507,7 +518,6 @@ header::before{
   from{opacity:0;transform:translateY(16px);}
   to{opacity:1;transform:translateY(0);}
 }
-/* Stagger via nth-child */
 .kpi-row .kpi:nth-child(1){animation-delay:0.0s;}
 .kpi-row .kpi:nth-child(2){animation-delay:0.07s;}
 .kpi-row .kpi:nth-child(3){animation-delay:0.14s;}
@@ -545,14 +555,14 @@ header::before{
 }
 
 /* ═══════════════════════════════════════════════════════
-   ALERT BANNER — GLASS
+   ALERT BANNER
 ═══════════════════════════════════════════════════════ */
 .alert-banner{
   display:none;
-  background:linear-gradient(90deg,rgba(239,79,99,0.14),rgba(239,79,99,0.06));
+  background:linear-gradient(90deg,rgba(var(--red-rgb),0.14),rgba(var(--red-rgb),0.06));
   -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(160%);
   backdrop-filter:blur(var(--glass-blur)) saturate(160%);
-  border:1px solid rgba(239,79,99,0.3);
+  border:1px solid rgba(var(--red-rgb),0.3);
   border-left:3px solid var(--red);
   border-radius:var(--r2);
   padding:14px 18px;
@@ -581,7 +591,7 @@ header::before{
 }
 
 /* ═══════════════════════════════════════════════════════
-   CARDS — LIQUID GLASS
+   CARDS
 ═══════════════════════════════════════════════════════ */
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
 .grid-2-1{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:20px;}
@@ -631,7 +641,7 @@ header::before{
 }
 
 /* ═══════════════════════════════════════════════════════
-   TABLES — GLASS
+   TABLES
 ═══════════════════════════════════════════════════════ */
 .table-wrap{
   background:var(--glass);
@@ -699,34 +709,34 @@ tbody tr:nth-child(n+7){animation-delay:0.2s;}
   to{opacity:1;transform:translateX(0);}
 }
 tr:hover td{background:rgba(58,139,253,0.06)!important;}
-[data-theme="dark"] tr:hover td{background:rgba(91,162,255,0.08)!important;}
+[data-theme="dark"] tr:hover td{background:rgba(96,165,250,0.12)!important;}
 
 /* ═══════════════════════════════════════════════════════
    ROW STATES
 ═══════════════════════════════════════════════════════ */
-tr.row-2r-hit td{background:rgba(230,154,31,0.10)!important;}
+tr.row-2r-hit td{background:rgba(var(--gold-rgb),0.10)!important;}
 tr.row-2r-hit{animation:twoRGlow 2s ease-in-out infinite;}
 @keyframes twoRGlow{
   0%,100%{box-shadow:inset 0 0 0 transparent;}
-  50%{box-shadow:inset 0 0 28px rgba(230,154,31,0.28);}
+  50%{box-shadow:inset 0 0 28px rgba(var(--gold-rgb),0.28);}
 }
 
-tr.row-4r-hit td{background:rgba(157,125,240,0.12)!important;}
+tr.row-4r-hit td{background:rgba(var(--purple-rgb),0.12)!important;}
 tr.row-4r-hit{animation:fourRGlow 2s ease-in-out infinite;}
 @keyframes fourRGlow{
   0%,100%{box-shadow:inset 0 0 0 transparent;}
-  50%{box-shadow:inset 0 0 32px rgba(157,125,240,0.35);}
+  50%{box-shadow:inset 0 0 32px rgba(var(--purple-rgb),0.35);}
 }
 
-tr.row-be-locked td{background:rgba(31,184,138,0.11)!important;}
+tr.row-be-locked td{background:rgba(var(--green-rgb),0.11)!important;}
 
-tr.row-partial-booked td{background:rgba(157,125,240,0.10)!important;}
+tr.row-partial-booked td{background:rgba(var(--purple-rgb),0.10)!important;}
 .badge-partial-booked{
   display:inline-flex;align-items:center;gap:3px;
   padding:2px 8px;border-radius:20px;
-  background:rgba(157,125,240,0.14);
-  border:1px solid rgba(157,125,240,0.32);
-  color:#9d7df0;font-size:8px;font-weight:700;
+  background:rgba(var(--purple-rgb),0.14);
+  border:1px solid rgba(var(--purple-rgb),0.32);
+  color:var(--purple);font-size:8px;font-weight:700;
   font-family:var(--mono);letter-spacing:0.04em;
   vertical-align:middle;margin-left:6px;
 }
@@ -747,12 +757,12 @@ tr.row-partial-booked td{background:rgba(157,125,240,0.10)!important;}
 }
 .live-badge.live{
   background:var(--green-dim);
-  border:1px solid rgba(31,184,138,0.25);
+  border:1px solid rgba(var(--green-rgb),0.25);
   color:var(--green);
 }
 .live-badge.fetching{
   background:var(--cyan-dim);
-  border:1px solid rgba(34,184,232,0.25);
+  border:1px solid rgba(var(--cyan-rgb),0.25);
   color:var(--cyan);
 }
 .live-dot{
@@ -794,22 +804,6 @@ tr.row-partial-booked td{background:rgba(157,125,240,0.10)!important;}
 }
 
 /* ═══════════════════════════════════════════════════════
-   R-TARGET CHIPS
-═══════════════════════════════════════════════════════ */
-.r-chip{
-  display:inline-flex;align-items:center;gap:3px;
-  padding:2px 6px;border-radius:6px;
-  font-size:8px;font-weight:700;font-family:var(--mono);
-  white-space:nowrap;
-  transition:transform .15s,box-shadow .15s;
-}
-.r-chip:hover{transform:scale(1.05);}
-.r-chip-1{background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);color:#3b82f6;}
-.r-chip-2{background:rgba(230,154,31,0.12);border:1px solid rgba(230,154,31,0.3);color:#e69a1f;}
-.r-chip-3{background:rgba(157,125,240,0.12);border:1px solid rgba(157,125,240,0.3);color:#9d7df0;}
-.r-chip-4{background:rgba(31,184,138,0.12);border:1px solid rgba(31,184,138,0.3);color:#1fb88a;}
-
-/* ═══════════════════════════════════════════════════════
    COLORS
 ═══════════════════════════════════════════════════════ */
 .pos{color:var(--green);}
@@ -817,12 +811,10 @@ tr.row-partial-booked td{background:rgba(157,125,240,0.10)!important;}
 .neu{color:var(--text2);}
 
 /* ═══════════════════════════════════════════════════════
-   FORM CONTROLS — GLASS
+   FORM CONTROLS
 ═══════════════════════════════════════════════════════ */
 select,input[type=text],input[type=number],input[type=date]{
-  background:var(--surface);
-  -webkit-backdrop-filter:blur(10px) saturate(160%);
-  backdrop-filter:blur(10px) saturate(160%);
+  background:rgba(255, 255, 255, 0.45);
   color:var(--text);
   border:1px solid var(--glass-border);
   padding:8px 11px;
@@ -837,11 +829,11 @@ select:focus,input:focus{
   border-color:var(--accent);
   box-shadow:0 0 0 3px rgba(58,139,253,0.14);
 }
-[data-theme="dark"] select:focus,
-[data-theme="dark"] input:focus{
-  box-shadow:0 0 0 3px rgba(91,162,255,0.18);
+[data-theme="dark"] select,
+[data-theme="dark"] input{
+  background:rgba(40, 55, 80, 0.6);
+  box-shadow:0 0 0 3px rgba(96,165,250,0.18);
 }
-/* Date picker icon visibility in dark mode */
 [data-theme="dark"] input[type=date]::-webkit-calendar-picker-indicator{
   filter:invert(0.8);
 }
@@ -851,7 +843,7 @@ select option{
 }
 
 /* ═══════════════════════════════════════════════════════
-   DATE FILTER — GLASS PILL DROPDOWN
+   DATE FILTER
 ═══════════════════════════════════════════════════════ */
 .date-filter-wrap{position:relative;display:inline-block;}
 .date-filter-btn{
@@ -859,15 +851,15 @@ select option{
   padding:9px 15px;
   border-radius:999px;cursor:pointer;
   font-family:var(--mono);font-size:10px;font-weight:600;
-  border:1px solid var(--glass-border);background:var(--surface);
-  -webkit-backdrop-filter:blur(12px) saturate(160%);
-  backdrop-filter:blur(12px) saturate(160%);
+  border:1px solid var(--glass-border);
+  background:rgba(255, 255, 255, 0.45);
   color:var(--text2);
   transition:all .2s var(--ease);
   white-space:nowrap;
   box-shadow:0 2px 8px rgba(120,140,170,0.12), inset 0 1px 0 rgba(255,255,255,0.5);
 }
 [data-theme="dark"] .date-filter-btn{
+  background:rgba(40, 55, 80, 0.6);
   box-shadow:0 2px 8px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.06);
 }
 .date-filter-btn:hover{border-color:var(--accent);color:var(--accent);}
@@ -905,7 +897,7 @@ select option{
 }
 [data-theme="dark"] .dfd-option:hover,
 [data-theme="dark"] .dfd-option.active{
-  background:rgba(91,162,255,0.14);
+  background:rgba(96,165,250,0.14);
 }
 .dfd-divider{height:1px;background:var(--rim);margin:4px 0;}
 .dfd-custom{padding:13px 15px;}
@@ -962,11 +954,12 @@ select option{
 }
 .hm-cell-empty{background:transparent;}
 .hm-cell-none{background:var(--surface);color:var(--text3);}
-.hm-cell-large-gain{background:rgba(31,184,138,0.85);color:#fff;}
-.hm-cell-small-gain{background:rgba(31,184,138,0.32);color:var(--green);}
-.hm-cell-breakeven{background:rgba(230,154,31,0.32);color:var(--gold);}
-.hm-cell-small-loss{background:rgba(239,79,99,0.22);color:var(--red);}
-.hm-cell-large-loss{background:rgba(239,79,99,0.75);color:#fff;}
+/* Using RGB variables ensures these automatically adapt to dark mode safely */
+.hm-cell-large-gain{background:rgba(var(--green-rgb),0.85);color:#fff;}
+.hm-cell-small-gain{background:rgba(var(--green-rgb),0.32);color:var(--green);}
+.hm-cell-breakeven{background:rgba(var(--gold-rgb),0.32);color:var(--gold);}
+.hm-cell-small-loss{background:rgba(var(--red-rgb),0.22);color:var(--red);}
+.hm-cell-large-loss{background:rgba(var(--red-rgb),0.75);color:#fff;}
 .hm-month-footer{
   padding:7px 7px;border-top:1px solid var(--rim);
   background:var(--surface);
@@ -1010,8 +1003,6 @@ select option{
   display:flex;justify-content:space-between;align-items:center;
   padding:10px 13px;
   background:var(--surface);
-  -webkit-backdrop-filter:blur(10px);
-  backdrop-filter:blur(10px);
   border-radius:10px;
   font-family:var(--mono);font-size:10px;
   border-left:3px solid;
@@ -1043,7 +1034,7 @@ select option{
 .bench-row span{color:var(--text2);}
 
 /* ═══════════════════════════════════════════════════════
-   CALENDAR — GLASS
+   CALENDAR
 ═══════════════════════════════════════════════════════ */
 .calendar-layout{display:grid;grid-template-columns:1fr 300px;gap:14px;margin-bottom:20px;}
 .cal-header{display:grid;grid-template-columns:repeat(7,1fr);background:var(--surface);border-radius:var(--r) var(--r) 0 0;}
@@ -1063,10 +1054,10 @@ select option{
 .cal-date{font-size:9px;color:var(--text3);font-family:var(--mono);}
 .cal-pnl{font-size:11px;font-weight:700;font-family:var(--mono);text-align:right;margin-top:auto;}
 .cal-today{background:rgba(58,139,253,0.10)!important;border:1px solid rgba(58,139,253,0.25);}
-[data-theme="dark"] .cal-today{background:rgba(91,162,255,0.12)!important;border:1px solid rgba(91,162,255,0.3);}
+[data-theme="dark"] .cal-today{background:rgba(96,165,250,0.12)!important;border:1px solid rgba(96,165,250,0.3);}
 
 /* ═══════════════════════════════════════════════════════
-   CALCULATORS — GLASS
+   CALCULATORS
 ═══════════════════════════════════════════════════════ */
 .calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px;}
 .calc-box{
@@ -1115,30 +1106,22 @@ select option{
 ::-webkit-scrollbar-thumb{background:var(--rim2);border-radius:4px;}
 ::-webkit-scrollbar-thumb:hover{background:var(--text3);}
 
-/* ═══════════════════════════════════════════════════════
-   CHART CANVAS
-═══════════════════════════════════════════════════════ */
 canvas{display:block;}
 
-/* ═══════════════════════════════════════════════════════
-   INSIGHT TABLE - setup deep dive group select
-═══════════════════════════════════════════════════════ */
 #insightGroupBy{
   font-size:10px;
   padding:8px 14px;
-  background:var(--surface);
-  -webkit-backdrop-filter:blur(10px) saturate(160%);
-  backdrop-filter:blur(10px) saturate(160%);
+  background:rgba(255, 255, 255, 0.45);
   border:1px solid var(--glass-border);
   color:var(--text);
   border-radius:999px;
   font-family:var(--mono);
   cursor:pointer;
 }
+[data-theme="dark"] #insightGroupBy {
+  background:rgba(40, 55, 80, 0.6);
+}
 
-/* ═══════════════════════════════════════════════════════
-   R-BAR DISTRIBUTION (analytics)
-═══════════════════════════════════════════════════════ */
 #rDistBars .bar-animate{
   animation:barGrow .6s var(--ease) both;
   transform-origin:bottom;
@@ -1148,18 +1131,12 @@ canvas{display:block;}
   to{transform:scaleY(1);opacity:1;}
 }
 
-/* ═══════════════════════════════════════════════════════
-   RESPONSIVE
-═══════════════════════════════════════════════════════ */
 @media(max-width:900px){
   .grid-2,.grid-2-1,.calendar-layout{grid-template-columns:1fr;}
   .kpi-row{flex-wrap:wrap;}
   .tabs{flex-wrap:nowrap;overflow-x:auto;}
 }
 
-/* ═══════════════════════════════════════════════════════
-   LOADING SHIMMER
-═══════════════════════════════════════════════════════ */
 .shimmer{
   background:linear-gradient(90deg,var(--surface) 25%,var(--rim) 50%,var(--surface) 75%);
   background-size:200% 100%;
@@ -1172,9 +1149,6 @@ canvas{display:block;}
   to{background-position:-200% 0;}
 }
 
-/* ═══════════════════════════════════════════════════════
-   SL BREACH BADGE
-═══════════════════════════════════════════════════════ */
 .sl-breach{
   display:inline-flex;align-items:center;gap:4px;
   color:var(--red);font-weight:700;
@@ -1288,11 +1262,11 @@ canvas{display:block;}
       </div>
     </div>
     <div class="hm-legend">
-      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(31,184,138,0.85);"></div>Large gain</div>
-      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(31,184,138,0.32);"></div>Small gain</div>
-      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(230,154,31,0.32);"></div>Breakeven</div>
-      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(239,79,99,0.25);"></div>Small loss</div>
-      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(239,79,99,0.75);"></div>Large loss</div>
+      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(var(--green-rgb),0.85);"></div>Large gain</div>
+      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(var(--green-rgb),0.32);"></div>Small gain</div>
+      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(var(--gold-rgb),0.32);"></div>Breakeven</div>
+      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(var(--red-rgb),0.25);"></div>Small loss</div>
+      <div class="hm-legend-item"><div class="hm-legend-dot" style="background:rgba(var(--red-rgb),0.75);"></div>Large loss</div>
     </div>
   </div>
   <div class="card" style="padding:16px;margin-bottom:24px;">
@@ -1586,13 +1560,12 @@ function updateTabSlider(){
 window.addEventListener('resize', updateTabSlider);
 
 /* ═══════════════════════════════════════════════════════
-   THEME TOGGLE (with chart re-render so Chart.js colors update)
+   THEME TOGGLE
 ═══════════════════════════════════════════════════════ */
 function toggleTheme(){
   const b=document.body;
   const newTheme = b.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
   b.setAttribute('data-theme', newTheme);
-  // Re-render charts so Chart.js tick/grid/tooltip colors pick up new CSS vars
   setTimeout(()=>{ if(allTrades && allTrades.length) renderAll(); },50);
 }
 
@@ -1888,8 +1861,8 @@ function updatePortfolioKPIs(){
   }).length;
 
   document.getElementById('kpi-portfolio').innerHTML=[
-    {label:'Open Positions',   val:open.length,                                cls:''},
-    {label:'% Invested',       val:pctInvested.toFixed(1)+'%',                 cls:pctInvested>80?'neg':pctInvested>50?'neu':'pos'},
+    {label:'Open Positions',  val:open.length,                               cls:''},
+    {label:'% Invested',      val:pctInvested.toFixed(1)+'%',                cls:pctInvested>80?'neg':pctInvested>50?'neu':'pos'},
     {label:'Capital Deployed', val:'₹'+(deployed/1e5).toFixed(2)+'L',          cls:''},
     {label:'MTM P&L (Sheet)',  val:formatINR(mtm),                             cls:mtm>=0?'pos':'neg'},
     {label:'Max SL Risk',      val:formatINR(maxRisk),                         cls:'neg'},
@@ -2043,14 +2016,14 @@ function renderStreak(closed){
     let bg, border, color;
     if (isWin) {
       const alpha = 0.18 + intensity * 0.72;
-      bg     = `rgba(31,184,138,${alpha.toFixed(2)})`;
-      border = `rgba(31,184,138,${Math.min(alpha + 0.2, 1).toFixed(2)})`;
-      color  = intensity > 0.5 ? '#fff' : '#1fb88a';
+      bg     = `rgba(var(--green-rgb),${alpha.toFixed(2)})`;
+      border = `rgba(var(--green-rgb),${Math.min(alpha + 0.2, 1).toFixed(2)})`;
+      color  = intensity > 0.5 ? '#fff' : 'var(--green)';
     } else {
       const alpha = 0.18 + intensity * 0.72;
-      bg     = `rgba(239,79,99,${alpha.toFixed(2)})`;
-      border = `rgba(239,79,99,${Math.min(alpha + 0.2, 1).toFixed(2)})`;
-      color  = intensity > 0.5 ? '#fff' : '#ef4f63';
+      bg     = `rgba(var(--red-rgb),${alpha.toFixed(2)})`;
+      border = `rgba(var(--red-rgb),${Math.min(alpha + 0.2, 1).toFixed(2)})`;
+      color  = intensity > 0.5 ? '#fff' : 'var(--red)';
     }
     return `<div class="streak-dot" style="background:${bg};border:1px solid ${border};color:${color};animation-delay:${i*0.04}s;" title="${t.Symbol}: ${formatINR(pnl)}">${isWin?'W':'L'}</div>`;
   }).join('');
@@ -2755,7 +2728,7 @@ function renderHistory(){
           <td class="${p>=0?'pos':'neg'}">${formatINR(p)}</td>
           <td class="${pct>=0?'pos':'neg'}">${pct.toFixed(2)}%</td>
           <td class="${rr>=2?'pos':'neu'}">${rr.toFixed(2)}x</td>
-          <td><span style="padding:3px 10px;border-radius:5px;font-size:9px;font-weight:700;background:${p>0?'rgba(31,184,138,0.12)':'rgba(239,79,99,0.12)'};color:${p>0?'var(--green)':'var(--red)'};border:1px solid ${p>0?'rgba(31,184,138,0.25)':'rgba(239,79,99,0.25)'};">${p>0?'WIN':'LOSS'}</span></td>
+          <td><span style="padding:3px 10px;border-radius:5px;font-size:9px;font-weight:700;background:${p>0?'rgba(var(--green-rgb),0.12)':'rgba(var(--red-rgb),0.12)'};color:${p>0?'var(--green)':'var(--red)'};border:1px solid ${p>0?'rgba(var(--green-rgb),0.25)':'rgba(var(--red-rgb),0.25)'};">${p>0?'WIN':'LOSS'}</span></td>
         </tr>`;
       }).join('')
     :'<tr><td colspan="12" style="text-align:center;padding:32px;color:var(--text3);font-family:var(--mono);font-size:11px;letter-spacing:0.08em;">NO TRADES MATCH FILTERS</td></tr>';
